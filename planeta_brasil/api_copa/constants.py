@@ -3,6 +3,7 @@
 #1: Portugues
 #2: Ingles
 #3: Espanhol
+
 COUNTRIES = {
 	1: ['Brasil', 'Brasil', 'Brasil'],
 	2: ['Japão', 'Japão', 'Japão'],
@@ -37,3 +38,19 @@ COUNTRIES = {
 	31: ['México', 'México', 'México'],
 	32: ['Uruguai ', 'Uruguai ', 'Uruguai '],
 }
+
+
+CITY_CHOICES = (
+	('RJ', 'Rio de Janeiro'),
+	('SP', 'São Paulo'),
+	('MG', 'Belo Horizonte'),
+	('RS', 'Porto Alegre'),
+	('DF', 'Brasília'),
+	('MT', 'Cuiabá'),
+	('PR', 'Curitiba'),
+	('CE', 'Fortaleza'),
+	('AM', 'Manaus'),
+	('RN', 'Natal'),
+	('PE', 'Recife'),
+	('BA', 'Salvador'),
+)

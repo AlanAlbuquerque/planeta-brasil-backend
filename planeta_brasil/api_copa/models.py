@@ -3,17 +3,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
-
-class Guess(TimeStampedModel):
-	country = models.PositiveIntegerField()
-
-
-class Device(models.Model):
-	os = models.CharField(max_length=10)
-	state = models.CharField(max_length=2, default='BR')
-	push_key = models.TextField(blank=False)
-	language = models.CharField(max_length=2, default = '1')
-
+from constants import CITY_CHOICES
 
 
 class MultLangContent(TimeStampedModel):
@@ -37,14 +27,47 @@ class MultLangContent(TimeStampedModel):
 				'description': getattr(self, 'description_%s' % lang),
 			}
 
+	def get_field(self, field, lang=None):
+		lang = 1 if lang is None else int(lang)
+		
+		if lang == 2:
+			return getattr(self, field + '_en')
+		
+		if lang == 3:
+			return getattr(self, field + '_es')
+		
+		return getattr(self, field + '_pt')
 
-class Photo(MultLangContent):
+
+
+class Guess(TimeStampedModel):
+	country = models.PositiveIntegerField()
+
+
+class Device(models.Model):
+	os = models.CharField(max_length=10)
+	state = models.CharField(max_length=2, null=True)
+	push_key = models.TextField(blank=False)
+	language = models.CharField(max_length=2, default = '1')
+
+
+class News(MultLangContent):
+	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
+	photo = models.ForeignKey('api_copa.Photo', null=True, related_name='news_photos', blank=True)
+
+	def as_dict(self, lang=None):
+		data = super(News, self).as_dict(lang)
+		data['id'] = unicode(self.id)
+		data['photo'] = self.photo.url
+		#data['photos'] = [p.as_dict() for p in self.photo_set.all()]
+		return data
+
+
+
+
+class Photo(TimeStampedModel):
 	photo = models.ImageField(upload_to='photos', blank=False)
 	thumb = ImageSpecField(source='photo', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60})
-	
-	stadium = models.ForeignKey('api_copa.Stadium', blank=True)
-	news = models.ForeignKey('api_copa.News', blank=True)
-	city = models.ForeignKey('api_copa.City', blank=True)
 
 	def as_dict(self, lang=None):
 		data = super(Photo, self).as_dict(lang)
@@ -68,20 +91,6 @@ class Country(MultLangContent):
 	flag = models.ImageField(upload_to='country', blank=True)
 	flag_thumb = ImageSpecField(source='flag', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60})
 
-
-class Stadium(MultLangContent):
-	city = models.ForeignKey('api_copa.City')
-
-
-class News(MultLangContent):
-	city = models.ForeignKey('api_copa.City')
-
-	def as_dict(self, lang=None):
-		data = super(News, self).as_dict(lang)
-		data['id'] = unicode(self.id)
-		data['city'] = self.city.as_dict(lang)
-		data['photos'] = [p.as_dict() for p in self.photo_set.all()]
-		return data
 
 
 class Video(MultLangContent):

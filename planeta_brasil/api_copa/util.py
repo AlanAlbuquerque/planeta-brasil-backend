@@ -22,9 +22,12 @@ REGION_CODE_TO_STATE = {
 def get_ip_state(ip):
 	try:
 		data = requests.get('http://freegeoip.net/json/' + ip).json()
-		return REGION_CODE_TO_STATE.get(data['region_code'], None)
+		state =  REGION_CODE_TO_STATE.get(data['region_code'], None)
+		if state is not None:
+			return state.upper()
 	except Exception, e:
-		return None 
+		pass
+	return None 
 
 
 def get_state_for_request(request):
@@ -33,4 +36,6 @@ def get_state_for_request(request):
 		ip = ip_adds[0]
 	else:
 		ip = request.META['REMOTE_ADDR']
-	return get_ip_state(ip)
+	
+	#return get_ip_state(ip)
+	return 'RJ'

@@ -1,20 +1,48 @@
 #coding: utf-8
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 from django.shortcuts import render
 from planeta_brasil.util import JsonResponse
 from .models import News, Device, Guess
 from .util import get_state_for_request
 
 
-def api_copa_news(request):
-	lang = request.GET.get('lang', 'pt').lower()
-	city = request.GET.get('city', None)	
-	qs = News.objects.all()
-	return JsonResponse([n.as_dict(lang) for n in qs])
+@csrf_exempt
+def register_push_device(request):
+    try:
+        devices = Device.objects.filter(push_key=request.POST.get('reg_id')).all()
+        if len(devices) == 0:
+            device = Device()
+            device.push_key = request.POST.get('reg_id')
+            device.os = request.POST.get('device_type')
+            device.language = request.POST.get('language')
+            device.state = get_state_for_request(request)
+            device.save()
+    except Exception, e:
+        print e
+    return JsonResponse({})
 
 
-def api_copa_videos(request):
-	return JsonResponse(dict(a=2))
+
+def api_news(request):
+    news = []
+    city = get_state_for_request(request)
+    lang = request.GET.get('lang', 1)
+    news_objs = News.objects.filter(Q(city__isnull=True) | Q(city=city)).order_by('-created')
+    
+    for n in news_objs:
+        news.append({
+            'day': n.created.strftime('%d/%m'),
+            'id': str(n.id),
+            'title': n.get_field('name', lang),
+            'img': n.photo.thumb.url
+            })
+
+    return JsonResponse(news)
+
+
+
+
 
 
 def api_matches_by_groups(request):
@@ -117,8 +145,18 @@ def api_guesses(request):
     	}
     return JsonResponse(guess)
 
+
 @csrf_exempt
 def api_photos(request):
+    try:
+        destination = open('chegou.jpeg', 'wb+')
+        f = request.FILES['recFile']
+        for chunk in f.chunks():
+            destination.write(chunk)
+        destination.close()
+    except Exception, e:
+        print e
+    
     photos = [
         {
             'img': 'http://www.futebolfreecs.com.br/wp-content/uploads/2014/02/torcida-copa25.jpg',
@@ -146,34 +184,6 @@ def api_photos(request):
         } ]
     return JsonResponse(photos)
 
-
-def api_news(request):
-    news = [
-        {
-            'day': '25/05',
-            'id': '4',
-            'title': 'news API 1',
-            'img': 'images/banner.png'
-        },
-        {
-            'day': '24/05',
-            'id': '3',
-            'title': 'news API 2',
-            'img': 'images/banner.png'
-        },
-        {
-            'day': '23/05',
-            'id': '2',
-            'title': 'news API 3',
-            'img': 'images/banner.png'
-        },
-        {
-            'day': '22/05',
-            'id': '1',
-            'title': 'news API 4',
-            'img': 'images/banner.png'
-        }, ]
-    return JsonResponse(news)
 
 
 def api_news_detail(request, pk):
@@ -749,17 +759,3 @@ def api_venue_detail(request, pk):
     }
     return JsonResponse(venue)
 
-@csrf_exempt
-def register_push_device(request):
-	try:
-		devices = Device.objects.filter(push_key=request.POST.get('reg_id')).all()
-		if len(devices) == 0:
-			device = Device()
-			device.push_key = request.POST.get('reg_id')
-			device.os = request.POST.get('device_type')
-			device.language = request.POST.get('language')
-			device.state = get_state_for_request(request)
-			device.save()
-	except Exception, e:
-		print e
-	return JsonResponse({})

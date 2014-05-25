@@ -1,6 +1,6 @@
 #coding: utf-8
 from django.contrib import admin
-from .models import Country, City, Stadium, Match, News, Photo, Video
+from .models import News, Photo
 
 
 class PhotoInline(admin.StackedInline):
@@ -8,37 +8,47 @@ class PhotoInline(admin.StackedInline):
     extra = 1
 
 
-class CityAdmin(admin.ModelAdmin):
-    inlines = [ PhotoInline, ]
+class PhotoAdmin(admin.ModelAdmin):
+    pass#inlines = [ PhotoInline, ]
 
-admin.site.register(City, CityAdmin)
-
-
-class StadiumAdmin(admin.ModelAdmin):
-	inlines = [ PhotoInline, ]
-
-admin.site.register(Stadium, StadiumAdmin)
-
-
-class CountryAdmin(admin.ModelAdmin):
-    pass
-
-admin.site.register(Country, CountryAdmin)
-
-
-class MatchAdmin(admin.ModelAdmin):
-    pass
-
-admin.site.register(Match, MatchAdmin)
+admin.site.register(Photo, PhotoAdmin)
 
 
 class NewsAdmin(admin.ModelAdmin):
-    inlines = [ PhotoInline, ]
+    pass#inlines = [ PhotoInline, ]
 
 admin.site.register(News, NewsAdmin)
 
 
-class VideoAdmin(admin.ModelAdmin):
-    pass
 
-admin.site.register(Video)
+
+# class CityAdmin(admin.ModelAdmin):
+#     inlines = [ PhotoInline, ]
+
+# admin.site.register(City, CityAdmin)
+
+
+# class StadiumAdmin(admin.ModelAdmin):
+# 	inlines = [ PhotoInline, ]
+
+# admin.site.register(Stadium, StadiumAdmin)
+
+
+# class CountryAdmin(admin.ModelAdmin):
+#     pass
+
+# admin.site.register(Country, CountryAdmin)
+
+
+# class MatchAdmin(admin.ModelAdmin):
+#     pass
+
+# admin.site.register(Match, MatchAdmin)
+
+
+
+
+# class VideoAdmin(admin.ModelAdmin):
+#     pass
+
+# admin.site.register(Video)
