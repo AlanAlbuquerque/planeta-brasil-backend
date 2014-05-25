@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.shortcuts import render
 from planeta_brasil.util import JsonResponse
-from .models import News, Device, Guess
+from .models import News, Device, Guess, UserPhoto
 from .util import get_state_for_request
 
 
@@ -28,7 +28,7 @@ def api_news(request):
     news = []
     city = get_state_for_request(request)
     lang = request.GET.get('lang', 1)
-    news_objs = News.objects.filter(Q(city__isnull=True) | Q(city=city)).order_by('-created')
+    news_objs = News.objects.filter(Q(city__isnull=True) | Q(city=city)).order_by('-created')[:11]
     
     for n in news_objs:
         news.append({
@@ -42,6 +42,43 @@ def api_news(request):
 
 
 
+def api_news_detail(request, pk):
+    lang = request.GET.get('lang', 1)
+    n = News.objects.get(pk=pk)
+    show_news = {
+        'id': str(n.id),
+        'img': n.photo.full.url,
+        'title_img': n.photo.thumb.url,
+        'date': n.created.strftime('%d/%m'),
+        'title': n.get_field('name', lang),
+        'message': n.get_field('description', lang),
+    }
+    return JsonResponse(show_news)
+
+
+
+@csrf_exempt
+def api_photos(request):
+    if request.POST:
+        try:
+            up = UserPhoto()
+            up.photo = request.FILES['recFile']
+            up.lang = request.GET.get('lang', 1)
+            up.city = get_state_for_request(request)
+            up.save()        
+            # destination = open('chegou.jpeg', 'wb+')
+            # f = request.FILES['recFile']
+            # for chunk in f.chunks():
+            #     destination.write(chunk)
+            # destination.close()
+        except Exception, e:
+            print e
+
+    photos = []
+    photos_objs = UserPhoto.objects.order_by('-created')[:11]
+    for p in photos_objs:
+        photos.append({'name':'', 'img': p.thumb.url})
+    return JsonResponse(photos)
 
 
 
@@ -146,56 +183,9 @@ def api_guesses(request):
     return JsonResponse(guess)
 
 
-@csrf_exempt
-def api_photos(request):
-    try:
-        destination = open('chegou.jpeg', 'wb+')
-        f = request.FILES['recFile']
-        for chunk in f.chunks():
-            destination.write(chunk)
-        destination.close()
-    except Exception, e:
-        print e
-    
-    photos = [
-        {
-            'img': 'http://www.futebolfreecs.com.br/wp-content/uploads/2014/02/torcida-copa25.jpg',
-            'name': 'Torcida'
-        },
-        {
-            'img': 'images/exemplo-torcida.png',
-            'name': 'Torcida'
-        },
-        {
-            'img': 'images/exemplo-torcida.png',
-            'name': 'Torcida'
-        },
-        {
-            'img': 'images/exemplo-torcida.png',
-            'name': 'Torcida'
-        },
-        {
-            'img': 'images/exemplo-torcida.png',
-            'name': 'Torcida'
-        },
-        {
-            'img': 'images/exemplo-torcida.png',
-            'name': 'Torcida'
-        } ]
-    return JsonResponse(photos)
 
 
 
-def api_news_detail(request, pk):
-    show_news = {
-        'id': 1,
-        'img': 'images/banner.png',
-        'title_img': 'Imagem',
-        'date': '25/05',
-        'title': 'news API 1',
-        'message': '<p>API Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo, alias omnis nisi non! Animi, alias, quidem, odit labore tenetur asperiores quia repudiandae excepturi fugit itaque praesentium accusantium fugiat reiciendis recusandae?Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima, ducimus, hic, corporis, eveniet fugiat voluptatem vero dignissimos accusantium minus ratione cum officiis ipsum qui rerum aliquid quo repudiandae autem recusandae.</p><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laudantium, pariatur consequatur doloremque debitis error omnis unde dolorem corporis cum mollitia ducimus voluptates illum repellat delectus enim in soluta nisi natus.</p>',
-    }
-    return JsonResponse(show_news)
 
 
 

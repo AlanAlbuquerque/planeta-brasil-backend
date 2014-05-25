@@ -42,6 +42,10 @@ class MultLangContent(TimeStampedModel):
 
 class Guess(TimeStampedModel):
 	country = models.PositiveIntegerField()
+	user_id = models.TextField(blank=True)
+	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
+	lang = models.PositiveSmallIntegerField(default=1)
+
 
 
 class Device(models.Model):
@@ -49,6 +53,7 @@ class Device(models.Model):
 	state = models.CharField(max_length=2, null=True)
 	push_key = models.TextField(blank=False)
 	language = models.CharField(max_length=2, default = '1')
+
 
 
 class News(MultLangContent):
@@ -67,50 +72,59 @@ class News(MultLangContent):
 
 class Photo(TimeStampedModel):
 	photo = models.ImageField(upload_to='photos', blank=False)
-	thumb = ImageSpecField(source='photo', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60})
+	thumb = ImageSpecField(source='photo', processors=[ResizeToFill(210, 140)], format='JPEG', options={'quality': 60})
+	full = ImageSpecField(source='photo', processors=[ResizeToFill(420, 280)], format='JPEG', options={'quality': 60})
 
 	def as_dict(self, lang=None):
 		data = super(Photo, self).as_dict(lang)
 		data['id'] = unicode(self.id)
-		data['photo'] = self.photo.url
+		data['photo'] = self.full.url
 		data['thumb'] = self.thumb.url
 		return data
 
 
-class City(MultLangContent):
-	state_name = models.TextField()
-	state_code =  models.CharField(max_length=2)
+
+class UserPhoto(TimeStampedModel):
+	photo = models.ImageField(upload_to='user_photos', blank=False)
+	thumb = ImageSpecField(source='photo', processors=[ResizeToFill(210, 140)], format='JPEG', options={'quality': 60})
+	full = ImageSpecField(source='photo', processors=[ResizeToFill(420, 280)], format='JPEG', options={'quality': 60})
+	
+	user_id = models.TextField(blank=True)
+	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
+	lang = models.PositiveSmallIntegerField(default=1)
+
+	def as_dict(self, lang=None):
+		data = super(Photo, self).as_dict(lang)
+		data['id'] = unicode(self.id)
+		data['photo'] = self.full.url
+		data['thumb'] = self.thumb.url
+		return data
 
 
-class Match(TimeStampedModel):
-	city = models.ForeignKey('api_copa.City')
 
 
-class Country(MultLangContent):
-	code = models.TextField(max_length=2)
-	flag = models.ImageField(upload_to='country', blank=True)
-	flag_thumb = ImageSpecField(source='flag', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60})
+# class Match(TimeStampedModel):
+# 	city = models.ForeignKey('api_copa.City')
 
 
+# class Video(MultLangContent):
+# 	youtube_url = models.URLField()
 
-class Video(MultLangContent):
-	youtube_url = models.URLField()
+# 	city = models.ForeignKey('api_copa.City')
 
-	city = models.ForeignKey('api_copa.City')
+# 	@property
+# 	def video_id(self):
+# 		if self.youtube_url:
+# 			qs = video_url.split('?')
+# 			return urlparse.parse_qs(qs[1])['v'][0]
+# 		return None
 
-	@property
-	def video_id(self):
-		if self.youtube_url:
-			qs = video_url.split('?')
-			return urlparse.parse_qs(qs[1])['v'][0]
-		return None
+# 	def video_thumb_small(self):
+# 		if self._video_id:
+# 			return "http://img.youtube.com/vi/%s/2.jpg" % self.video_id
+# 		return ''
 
-	def video_thumb_small(self):
-		if self._video_id:
-			return "http://img.youtube.com/vi/%s/2.jpg" % self.video_id
-		return ''
-
-	def video_thumb_big(self):
-		if self._video_id:
-			return "http://img.youtube.com/vi/%s/0.jpg" % self.video_id
-		return ''
+# 	def video_thumb_big(self):
+# 		if self._video_id:
+# 			return "http://img.youtube.com/vi/%s/0.jpg" % self.video_id
+# 		return ''
