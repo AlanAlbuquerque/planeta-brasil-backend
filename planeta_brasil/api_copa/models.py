@@ -4,6 +4,17 @@ from model_utils.models import TimeStampedModel
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 
+class Guess(TimeStampedModel):
+	country = models.PositiveIntegerField()
+
+
+class Device(models.Model):
+	os = models.CharField(max_length=10)
+	state = models.CharField(max_length=2, default='BR')
+	push_key = models.TextField(blank=False)
+	language = models.CharField(max_length=2, default = '1')
+
+
 
 class MultLangContent(TimeStampedModel):
 	name_pt = models.TextField()

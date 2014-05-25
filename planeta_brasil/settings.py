@@ -43,7 +43,7 @@ ROOT_URLCONF = 'planeta_brasil.urls'
 WSGI_APPLICATION = 'planeta_brasil.wsgi.application'
 
 
-#DATABASES = { 'default': { 'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
+# DATABASES = { 'default': { 'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
 
 import dj_database_url
 DATABASES =  { 'default':  dj_database_url.config() }
@@ -70,6 +70,7 @@ USE_TZ = True
 
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
+USE_X_FORWARDED_HOST = True
 
 #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 #AWS_S3_SECURE_URLS = False       # use http instead of https
