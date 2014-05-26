@@ -59,7 +59,7 @@ def api_news_detail(request, pk):
 
 @csrf_exempt
 def api_photos(request):
-    if request.POST:
+    if request.FILES:
         try:
             up = UserPhoto()
             up.photo = request.FILES['recFile']
