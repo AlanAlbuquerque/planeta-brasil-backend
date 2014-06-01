@@ -28,6 +28,7 @@ INSTALLED_APPS = (
     'planeta_brasil.api_copa',
     'planeta_brasil.aguia_verde',
     'south',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (

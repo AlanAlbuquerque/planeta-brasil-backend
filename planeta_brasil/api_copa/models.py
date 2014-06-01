@@ -24,21 +24,13 @@ class MultLangContent(TimeStampedModel):
 	def as_dict(self, lang=None):
 		lang = lang or 'pt'
 		return {
-				'name': getattr(self, 'name_%s' % lang),
-				'description': getattr(self, 'description_%s' % lang),
+				'name': self.get_field('name', lang),
+				'description': self.get_field('description', lang)
 			}
 
 	def get_field(self, field, lang=None):
-		lang = 1 if lang is None else int(lang)
-
-		if lang == 2:
-			return getattr(self, field + '_en')
-
-		if lang == 3:
-			return getattr(self, field + '_es')
-
-		return getattr(self, field + '_pt')
-
+		lang = lang or 'pt'
+		return getattr(self, '%s_%s' % (field, lang))
 
 
 class Guess(TimeStampedModel):
@@ -64,11 +56,24 @@ class News(MultLangContent):
 	def as_dict(self, lang=None):
 		data = super(News, self).as_dict(lang)
 		data['id'] = unicode(self.id)
-		data['photo'] = self.photo.url
-		#data['photos'] = [p.as_dict() for p in self.photo_set.all()]
+		data['day'] = self.created.strftime('%d/%m')
+		data['title'] = self.get_field('name', lang)
+		data['img'] = self.photo.photo.url
+		data['photos'] = [p.as_dict() for p in self.photo_set.all()]
 		return data
 
 
+class CulturalProgramming(MultLangContent):
+	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
+	photo = models.ForeignKey('api_copa.Photo', null=True, related_name='cultural_programming_photos', blank=True)
+
+	def as_dict(self, lang=None):
+			data = super(CulturalProgramming, self).as_dict(lang)
+			data['id'] = unicode(self.id)
+			data['title'] = self.get_field('name', lang)
+			data['describ'] = self.get_field('description', lang)
+			data['img'] = self.photo.photo.url
+			return data
 
 
 class Photo(TimeStampedModel):
@@ -77,12 +82,11 @@ class Photo(TimeStampedModel):
 	full = ImageSpecField(source='photo', processors=[ResizeToFill(420, 280)], format='JPEG', options={'quality': 60})
 
 	def as_dict(self, lang=None):
-		data = super(Photo, self).as_dict(lang)
+		data = {}
 		data['id'] = unicode(self.id)
-		data['photo'] = self.full.url
+		data['img'] = self.full.url
 		data['thumb'] = self.thumb.url
 		return data
-
 
 
 class UserPhoto(TimeStampedModel):
@@ -95,9 +99,9 @@ class UserPhoto(TimeStampedModel):
 	lang = models.PositiveSmallIntegerField(default=1)
 
 	def as_dict(self, lang=None):
-		data = super(Photo, self).as_dict(lang)
+		data = {}
 		data['id'] = unicode(self.id)
-		data['photo'] = self.full.url
+		data['img'] = self.full.url
 		data['thumb'] = self.thumb.url
 		return data
 
