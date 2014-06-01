@@ -3,8 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.shortcuts import render
 from planeta_brasil.util import JsonResponse
-from .models import News, Device, Guess, UserPhoto
-from .util import get_state_for_request
+from .models import News, Device, Guess, UserPhoto, Match
+from .util import get_state_for_request, DateMultiLanguage
+from datetime import datetime, timedelta, time
 
 
 @csrf_exempt
@@ -29,7 +30,7 @@ def api_news(request):
     city = get_state_for_request(request)
     lang = request.GET.get('lang', 1)
     news_objs = News.objects.filter(Q(city__isnull=True) | Q(city=city)).order_by('-created')[:11]
-    
+
     for n in news_objs:
         news.append({
             'day': n.created.strftime('%d/%m'),
@@ -65,7 +66,7 @@ def api_photos(request):
             up.photo = request.FILES['recFile']
             up.lang = request.GET.get('lang', 1)
             up.city = get_state_for_request(request)
-            up.save()        
+            up.save()
             # destination = open('chegou.jpeg', 'wb+')
             # f = request.FILES['recFile']
             # for chunk in f.chunks():
@@ -158,7 +159,7 @@ def api_guesses(request):
     if request.POST:
         Guess.objects.create(country=int(request.POST.get('country', '1')))
         return JsonResponse({})
-    
+
     guess = {
     	1: [ { 'team': '_Brasil', 'percent': '55%' },
         	{ 'team': 'Espanha', 'percent': '23%' },
@@ -166,7 +167,7 @@ def api_guesses(request):
         	{ 'team': 'Inglaterra', 'percent':'6%', },
         	{ 'team': 'Argentina', 'percent':'4%', },
     	],
-    
+
     	2: [ { 'team': '_Brazil', 'percent': '55%' },
         	{ 'team': 'Spain', 'percent': '23%' },
         	{ 'team': 'Germany', 'percent':'12%', },
@@ -178,7 +179,7 @@ def api_guesses(request):
         	{ 'team': 'Alemanha', 'percent':'12%', },
         	{ 'team': 'Inglaterra', 'percent':'6%', },
         	{ 'team': 'Argentina', 'percent':'4%', }
-    		]   
+    		]
     	}
     return JsonResponse(guess)
 
@@ -193,123 +194,35 @@ def api_guesses(request):
 
 
 def api_last_games(request):
-    print request.GET.get('page', '0')
+    # print request.GET.get('page', '0')
+    lang = request.GET.get('lang', 'pt')
+    dt = DateMultiLanguage(lang=lang)
     lastGames = {
-            'items': [
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                },
-                {
-                    "home": "Brasil",
-                    "abbr_home": "BRA",
-                    "gols_home": 2,
-                    "img_home": "images/bandeiras/a1.png",
-                    "visited": "Croacia",
-                    "gols_visited": 1,
-                    "abbr_visited": "CRO",
-                    "img_visited": "images/bandeiras/a2.png",
-                    "date": "Quarta 04/06"
-                }
-            ],
+            'items': [],
             'offset': 0,
             'total': 11,
     }
+
+    period = datetime.now() - timedelta(days=5)
+    period = datetime.combine(period, time(0, 0))
+
+    matches = Match.objects.filter(day_match__gt=period)
+
+    for match in matches:
+        home = match.team_home
+        visited = match.team_visited
+
+        lastGames['items'].append({
+            "home": home.get_field('name', lang),
+            "abbr_home": home.abbr,
+            "gols_home": int(match.result_home),
+            "img_home": home.img_app,
+            "visited": visited.get_field('name', lang),
+            "gols_visited": int(match.result_visited),
+            "abbr_visited": visited.abbr,
+            "img_visited": visited.img_app,
+            "date": dt.day_week_with_date(match.day_match)
+        })
 
     return JsonResponse(lastGames)
 
@@ -516,7 +429,7 @@ def api_finals(request):
                     "local": 'Maracanã - Rio de Janeiro'
                 }
             ]
-            
+
 
     finals = {
         1: {

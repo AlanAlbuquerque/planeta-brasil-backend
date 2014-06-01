@@ -11,7 +11,7 @@ def run():
             "district": "Rio de Janeiro",
         },
         {
-            "name": "Minerão",
+            "name": "Mineirão",
             "district": "Belo Horizonte",
         },
         {
@@ -47,7 +47,7 @@ def run():
             "district": "Fortaleza",
         },
         {
-            "name": "Estádio das Dunas",
+            "name": "Arena das Dunas",
             "district": "Natal",
         },
         {
