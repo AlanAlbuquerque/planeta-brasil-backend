@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from planeta_brasil.api_copa.models import (News, Photo, CulturalProgramming)
+from planeta_brasil.api_copa.models import News, Photo
 from django.core.files import File
 from datetime import datetime
 import urllib
@@ -83,7 +83,7 @@ def run():
 
     # CREATE NEWS
 
-    def create_new():
+    def create_news():
         news = db.get('news')
 
         for new in news:
@@ -98,47 +98,4 @@ def run():
                 photo=PHOTO_FILL,
             )
 
-    # CREATE CulturalProgramming
-
-    def create_cultural_programming():
-        cultural_programmings = db.get('culturalProgramming')
-
-        for cp in cultural_programmings:
-
-            CulturalProgramming.objects.create(
-                name_pt=cp.get('title'),
-                name_en=cp.get('title'),
-                name_es=cp.get('title'),
-                description_pt=cp.get('describ'),
-                description_en=cp.get('describ'),
-                description_es=cp.get('describ'),
-                photo=PHOTO_FILL,
-            )
-
-    # CREATE Match
-
-    def create_matches():
-
-
-    "nextMatches": [
-            {
-                "home": "Brasil",
-                "abbr_home": "BRA",
-                "img_home": "images/bandeiras/a1.png",
-                "visited": "Croacia",
-                "abbr_visited": "CRO",
-                "img_visited": "images/bandeiras/a2.png",
-                "local": "Maracanã",
-                "date": "Quarta 04/06",
-                "type": "Amistoso"
-            },
-            {
-
-
-
-
-
-
-
-    create_new()
-    create_cultural_programming()
+    create_news()

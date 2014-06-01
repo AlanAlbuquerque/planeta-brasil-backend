@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from planeta_brasil.api_copa.models import (News, Photo, CulturalProgramming)
+from planeta_brasil.api_copa.models import Photo, CulturalProgramming
 from django.core.files import File
-from datetime import datetime
 import urllib
 
 def run():
@@ -14,38 +13,6 @@ def run():
     PHOTO_FILL = Photo.objects.create(photo=img)
 
     db = {
-        "news": [
-            {
-                'day': '16/04',
-                'id': '1',
-                'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-                'img': 'images/banner.png'
-            },
-            {
-                'day': '16/04',
-                'id': '1',
-                'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-                'img': 'images/banner.png'
-            },
-            {
-                'day': '16/04',
-                'id': '1',
-                'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-                'img': 'images/banner.png'
-            },
-            {
-                'day': '16/04',
-                'id': '1',
-                'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-                'img': 'images/banner.png'
-            },
-            {
-                'day': '16/04',
-                'id': '1',
-                'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-                'img': 'images/banner.png'
-            }
-        ],
         "culturalProgramming": [
             {
                 "id": 1,
@@ -81,22 +48,6 @@ def run():
 
         }
 
-    # CREATE NEWS
-
-    def create_new():
-        news = db.get('news')
-
-        for new in news:
-            day = new.get('day', '')
-            day = datetime.strptime(day, '%d/%m').replace(year=2014)
-
-            News.objects.create(
-                created=day,
-                name_pt=new.get('title', ''),
-                name_en=new.get('title', ''),
-                name_es=new.get('title', ''),
-                photo=PHOTO_FILL,
-            )
 
     # CREATE CulturalProgramming
 
@@ -115,30 +66,5 @@ def run():
                 photo=PHOTO_FILL,
             )
 
-    # CREATE Match
 
-    def create_matches():
-
-
-    "nextMatches": [
-            {
-                "home": "Brasil",
-                "abbr_home": "BRA",
-                "img_home": "images/bandeiras/a1.png",
-                "visited": "Croacia",
-                "abbr_visited": "CRO",
-                "img_visited": "images/bandeiras/a2.png",
-                "local": "Maracanã",
-                "date": "Quarta 04/06",
-                "type": "Amistoso"
-            },
-            {
-
-
-
-
-
-
-
-    create_new()
     create_cultural_programming()

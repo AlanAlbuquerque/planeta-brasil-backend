@@ -115,6 +115,7 @@ class Stadium(TimeStampedModel):
 	name = models.CharField(max_length=50)
 	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
 
+	__unicode__ = lambda x: x.name
 
 class Match(TimeStampedModel):
 
