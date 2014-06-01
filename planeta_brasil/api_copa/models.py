@@ -3,7 +3,8 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
-from constants import CITY_CHOICES
+from constants import CITY_CHOICES, GROUP_CHOICES, TYPE_MATCH_CHOICES
+from model_utils.choices import Choices
 
 
 class MultLangContent(TimeStampedModel):
@@ -29,13 +30,13 @@ class MultLangContent(TimeStampedModel):
 
 	def get_field(self, field, lang=None):
 		lang = 1 if lang is None else int(lang)
-		
+
 		if lang == 2:
 			return getattr(self, field + '_en')
-		
+
 		if lang == 3:
 			return getattr(self, field + '_es')
-		
+
 		return getattr(self, field + '_pt')
 
 
@@ -88,7 +89,7 @@ class UserPhoto(TimeStampedModel):
 	photo = models.ImageField(upload_to='user_photos', blank=False)
 	thumb = ImageSpecField(source='photo', processors=[ResizeToFill(210, 140)], format='JPEG', options={'quality': 60})
 	full = ImageSpecField(source='photo', processors=[ResizeToFill(420, 280)], format='JPEG', options={'quality': 60})
-	
+
 	user_id = models.TextField(blank=True)
 	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
 	lang = models.PositiveSmallIntegerField(default=1)
@@ -101,10 +102,53 @@ class UserPhoto(TimeStampedModel):
 		return data
 
 
+class Team(TimeStampedModel):
+	name = models.CharField(max_length=50)
+	name_en = models.CharField(max_length=50)
+	name_es = models.CharField(max_length=50)
+	img_app = models.CharField(max_length=50)
+	abbr = models.CharField(max_length=3)
 
 
-# class Match(TimeStampedModel):
-# 	city = models.ForeignKey('api_copa.City')
+class Stadium(TimeStampedModel):
+	name = models.CharField(max_length=50)
+	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
+
+
+class Match(TimeStampedModel):
+
+	TYPE_MATCH = Choices(*TYPE_MATCH_CHOICES)
+
+	city = models.ForeignKey('api_copa.City')
+	team_home = models.ForeignKey('api_copa.Team', null=True, related_name='teams_home', blank=True)
+	team_visited = models.ForeignKey('api_copa.Team', null=True, related_name='teams_visited', blank=True)
+	stadium = models.ForeignKey('api_copa.Stadium', null=True, related_name='matches_stadium', blank=True)
+
+	group = models.CharField(choices=GROUP_CHOICES, max_length=1, null=True, blank=True)
+	type_match = models.PositiveSmallIntegerField(choices=TYPE_MATCH, max_length=1, default=TYPE_MATCH.amistoso)
+	result_home =  models.PositiveSmallIntegerField(default=0)
+	result_visited =  models.PositiveSmallIntegerField(default=0)
+
+	day_match = models.DateTimeField()
+	is_finished = models.BooleanField(default=False)
+
+
+class Locals(TimeStampedModel):
+	logo = ImageSpecField(source='photo', processors=[ResizeToFill(60, 60)], format='JPEG', options={'quality': 60})
+	name_pt = models.CharField(max_length=50)
+	name_en = models.CharField(max_length=50)
+	name_es = models.CharField(max_length=50)
+
+
+class GuessMatch(TimeStampedModel):
+	email = models.EmailField(max_length=80)
+	name = models.CharField(max_length=50)
+	match = models.ForeignKey('api_copa.Match', null=True, related_name='matches_guess', blank=True)
+
+	result_home =  models.PositiveSmallIntegerField(default=0)
+	result_visited =  models.PositiveSmallIntegerField(default=0)
+
+	hit = models.BooleanField(default=False)
 
 
 # class Video(MultLangContent):
