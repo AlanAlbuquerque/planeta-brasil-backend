@@ -102,10 +102,7 @@ class UserPhoto(TimeStampedModel):
 		return data
 
 
-class Team(TimeStampedModel):
-	name = models.CharField(max_length=50)
-	name_en = models.CharField(max_length=50)
-	name_es = models.CharField(max_length=50)
+class Team(MultLangContent):
 	img_app = models.CharField(max_length=50)
 	abbr = models.CharField(max_length=3)
 
@@ -119,7 +116,7 @@ class Match(TimeStampedModel):
 
 	TYPE_MATCH = Choices(*TYPE_MATCH_CHOICES)
 
-	city = models.ForeignKey('api_copa.City')
+	city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
 	team_home = models.ForeignKey('api_copa.Team', null=True, related_name='teams_home', blank=True)
 	team_visited = models.ForeignKey('api_copa.Team', null=True, related_name='teams_visited', blank=True)
 	stadium = models.ForeignKey('api_copa.Stadium', null=True, related_name='matches_stadium', blank=True)
@@ -133,11 +130,8 @@ class Match(TimeStampedModel):
 	is_finished = models.BooleanField(default=False)
 
 
-class Locals(TimeStampedModel):
+class Locals(MultLangContent):
 	logo = ImageSpecField(source='photo', processors=[ResizeToFill(60, 60)], format='JPEG', options={'quality': 60})
-	name_pt = models.CharField(max_length=50)
-	name_en = models.CharField(max_length=50)
-	name_es = models.CharField(max_length=50)
 
 
 class GuessMatch(TimeStampedModel):
