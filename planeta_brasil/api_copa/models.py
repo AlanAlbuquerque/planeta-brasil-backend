@@ -30,7 +30,7 @@ class MultLangContent(TimeStampedModel):
 
     def get_field(self, field, lang=None):
         _lang = {1: 'pt', 2: 'en', 3: 'es'}
-        if type(lang) == str or unicode:
+        if type(lang) == str or type(lang) == unicode:
             if lang.isdigit():
                 lang = _lang[int(lang)]
 
