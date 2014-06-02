@@ -31,6 +31,7 @@ def run():
             1: u'Camarões',
             2: u'Cameroon',
             3: u'Camerún',
+            'img_app': 'images/bandeiras/a4.png',
             'abbr': 'CAM'
         },
         {
@@ -44,6 +45,7 @@ def run():
             1: u'Holanda',
             2: u'Netherlands',
             3: u'Holanda',
+            'img_app': 'images/bandeiras/b2.png',
             'abbr': 'HOL'
         },
         {
@@ -252,4 +254,3 @@ def run():
             print "Time já existe e não foi criado: %s" % (dict_not_creted)
 
     create_team()
-
