@@ -45,7 +45,13 @@ def get_state_for_request(request):
 
 class DateMultiLanguage:
     def __init__(self, *args, **kwargs):
-        self.lang = kwargs.pop('lang')
+        lang = kwargs.get('lang', 'pt')
+
+        if isinstance(lang, int):
+            dict_lang = {1: 'pt', 2: 'en', 3: 'es'}
+            lang = dict_lang[lang]
+
+        self.lang = lang
 
         self.PATTERN_DATE = '%m/%d/%Y' if self.lang == 'en' else '%d/%m/%Y'
         self.PATTERN_DATE_SHORT = '%d/%m'
