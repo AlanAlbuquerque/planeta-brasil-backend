@@ -196,7 +196,7 @@ def api_finals(request):
         dt = DateMultiLanguage(lang=lang)
         _dict = []
         matches_oitavas = Match.objects.filter(type_match=type_match)\
-            .select_relaed('stadium', 'team').order_by('day_match')
+            .select_related('stadium', 'team').order_by('day_match')
 
         for match in matches_oitavas:
             home = match.team_home
