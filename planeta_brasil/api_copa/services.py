@@ -130,6 +130,7 @@ def fetch_next_games(lang='pt', page=0, limit=10):
         visited = match.team_visited
 
         nextGames['items'].append({
+            "id": str(match.id),
             "home": home.get_field('name', lang),
             "abbr_home": home.abbr,
             "img_home": home.img_app,

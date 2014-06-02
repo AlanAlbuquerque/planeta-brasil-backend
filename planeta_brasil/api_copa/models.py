@@ -170,7 +170,13 @@ class GuessMatch(TimeStampedModel):
 
     hit = models.BooleanField(default=False)
 
+GuessMatch.objects.distinct('email').extra(
+    select={
+     'count_guess': '''SELECT COUNT(*) FROM "api_copa_guessmatch"
+    '''
+})
 
+# WHERE "api_copa_guessmatch"."email" = "api_copa_guessmatch"."email"
 # class Video(MultLangContent):
 #   youtube_url = models.URLField()
 

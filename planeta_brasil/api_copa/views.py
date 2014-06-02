@@ -137,45 +137,34 @@ def api_guesses(request):
 
 @csrf_exempt
 def api_create_guesses(request, pk):
-    lang = request.GET.get('lang', 1)
-    strings = translation(lang)
-
-    data = {
-        u'messages': {
-            u'errors': [],
-            u'success': u'',
-        },
-    }
-
-    errors = data['messages']['errors']
+    data = {'status': False}
 
     if request.POST:
-
         result_visited = request.POST.get('visited')
         result_home = request.POST.get('home')
         email = request.POST.get('email')
         name = request.POST.get('name')
         match = get_object_or_404(Match, pk=pk)
 
-        #FIXME What this line create?
         # Guess.objects.create(country=int(request.POST.get('country', '1')))
 
-        email_has_guess_match = GuessMatch.objects.filter(
-            match=match, email=str(email)).exists()
+        create_guess = GuessMatch.objects.filter(match=match, email=email)\
+            .update(
+                result_home=result_home,
+                result_visited=result_visited,
+            )
 
-        if email_has_guess_match:
-            errors.append(strings['email_has_guess_match'])
-
-        else:
-            GuessMatch.objects.create(
+        if not create_guess:
+            create_guess = GuessMatch.objects.create(
                 email=email,
                 name=name,
                 result_home=result_home,
                 result_visited=result_visited,
                 match=match,
             )
-            data['messages']['success'] = strings['guess_match_registered_success']
 
+            if create_guess:
+                data['status'] = True
 
     return JsonResponse(data)
 
@@ -223,19 +212,19 @@ def api_finals(request):
             'quartas': create_match_list(4, 1),
             'semi': create_match_list(5, 1),
             'final': create_match_list(7, 1)
-            },
+        },
         2: {
             'oitavas': create_match_list(3, 2),
             'quartas': create_match_list(4, 2),
             'semi': create_match_list(5, 2),
             'final': create_match_list(7, 2)
-            },
+        },
         3: {
             'oitavas': create_match_list(3, 3),
             'quartas': create_match_list(4, 3),
             'semi': create_match_list(5, 3),
             'final': create_match_list(7, 3)
-            },
+        },
     }
     return JsonResponse(finals)
 
