@@ -3,33 +3,26 @@
 from planeta_brasil.api_copa.models import Team, Stadium, Match
 from datetime import datetime
 
-
-# Team for tests
-try:
-    TEAM = Team.objects.latest('id')
-except Exception:
-    pass
-
 def get_team(abbr):
     return Team.objects.get(abbr=abbr)
 
 def run():
-    _1A = get_team(TEAM.abbr)
-    _1B = get_team(TEAM.abbr)
-    _1C = get_team(TEAM.abbr)
-    _1D = get_team(TEAM.abbr)
-    _1E = get_team(TEAM.abbr)
-    _1F = get_team(TEAM.abbr)
-    _1G = get_team(TEAM.abbr)
-    _1H = get_team(TEAM.abbr)
-    _2A = get_team(TEAM.abbr)
-    _2B = get_team(TEAM.abbr)
-    _2C = get_team(TEAM.abbr)
-    _2D = get_team(TEAM.abbr)
-    _2E = get_team(TEAM.abbr)
-    _2F = get_team(TEAM.abbr)
-    _2G = get_team(TEAM.abbr)
-    _2H = get_team(TEAM.abbr)
+    _1A = get_team('1º A')
+    _1B = get_team('1º B')
+    _1C = get_team('1º C')
+    _1D = get_team('1º D')
+    _1E = get_team('1º E')
+    _1F = get_team('1º F')
+    _1G = get_team('1º G')
+    _1H = get_team('1º H')
+    _2A = get_team('2º A')
+    _2B = get_team('2º B')
+    _2C = get_team('2º C')
+    _2D = get_team('2º D')
+    _2E = get_team('2º E')
+    _2F = get_team('2º F')
+    _2G = get_team('2º G')
+    _2H = get_team('2º H')
 
     oitavas = [
         {

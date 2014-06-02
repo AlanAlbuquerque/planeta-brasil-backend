@@ -104,9 +104,24 @@ class UserPhoto(TimeStampedModel):
         return data
 
 
+class TeamQuerySet(models.query.QuerySet):
+    def create(self, *args, **kwargs):
+        abbr = kwargs.get('abbr', '')
+        if abbr:
+            team = self.filter(abbr=abbr)
+            if team:
+                return team.update(*args, **kwargs)
+
+        return super(TeamQuerySet, self).create(*args, **kwargs)
+
+class TeamManager(models.Manager):
+    def get_query_set(self):
+        return TeamQuerySet(self.model, using=self._db)
+
 class Team(MultLangContent):
     img_app = models.CharField(max_length=50)
     abbr = models.CharField(max_length=3)
+    objects = TeamManager()
 
 
 class Stadium(TimeStampedModel):

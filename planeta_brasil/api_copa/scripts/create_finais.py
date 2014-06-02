@@ -4,26 +4,19 @@ from planeta_brasil.api_copa.models import Team, Stadium, Match
 from datetime import datetime
 
 
-# Team for tests
-try:
-    TEAM = Team.objects.latest('id')
-except Exception:
-    pass
-
-
 def get_team(abbr):
     return Team.objects.get(abbr=abbr)
 
 
 def run():
-    _1V = get_team(TEAM.abbr)
-    _2V = get_team(TEAM.abbr)
-    _3V = get_team(TEAM.abbr)
-    _4V = get_team(TEAM.abbr)
-    _5V = get_team(TEAM.abbr)
-    _6V = get_team(TEAM.abbr)
-    _7V = get_team(TEAM.abbr)
-    _8V = get_team(TEAM.abbr)
+    _1V = get_team('1º V')
+    _2V = get_team('2º V')
+    _3V = get_team('3º V')
+    _4V = get_team('4º V')
+    _5V = get_team('5º V')
+    _6V = get_team('6º V')
+    _7V = get_team('7º V')
+    _8V = get_team('8º V')
 
     quartas = [
         {
@@ -93,8 +86,8 @@ def run():
         },
     ]
 
-    _1P = get_team(TEAM.abbr)
-    _2P = get_team(TEAM.abbr)
+    _1P = get_team('1º P')
+    _2P = get_team('2º P')
 
     terceiro = [
         {

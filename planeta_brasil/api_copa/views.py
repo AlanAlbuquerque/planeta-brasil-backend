@@ -8,6 +8,7 @@ from .services import (fetch_news, fetch_cultural_programming,
 from .scripts import create_we_are
 from django.shortcuts import get_object_or_404
 from .strings import translation
+from .util import DateMultiLanguage
 
 
 @csrf_exempt
@@ -89,7 +90,6 @@ def api_matches_by_groups(request):
     return JsonResponse(matches)
 
 
-
 @csrf_exempt
 def api_guesses(request):
 
@@ -106,31 +106,33 @@ def api_guesses(request):
             team_win = None
         if team_win:
             qtd_win = int(dict_guess.get('qtd_win', 0))
-            dict_guess.update({team_win.get_field('name', 'pt'): int(qtd_win + 1)})
+            dict_guess.update({
+                team_win.get_field('name', 'pt'): int(qtd_win + 1)})
 
     guess = {
-        1: [ { 'team': 'Brasil', 'percent': '55%' },
-            { 'team': 'Espanha', 'percent': '23%' },
-            { 'team': 'Alemanha', 'percent':'12%', },
-            { 'team': 'Inglaterra', 'percent':'6%', },
-            { 'team': 'Argentina', 'percent':'4%', },
+        1: [
+            {'team': 'Brasil', 'percent': '55%'},
+            {'team': 'Espanha', 'percent': '23%'},
+            {'team': 'Alemanha', 'percent': '12%', },
+            {'team': 'Inglaterra', 'percent': '6%', },
+            {'team': 'Argentina', 'percent': '4%', },
         ],
-
-        2: [ { 'team': 'Brazil', 'percent': '55%' },
-            { 'team': 'Spain', 'percent': '23%' },
-            { 'team': 'Germany', 'percent':'12%', },
-            { 'team': 'England', 'percent':'6%', },
-            { 'team': 'Argentine', 'percent':'4%', },
-            ],
-        3: [ { 'team': 'Brasil', 'percent': '55%' },
-             { 'team': 'España', 'percent': '23%' },
-            { 'team': 'Alemanha', 'percent':'12%', },
-            { 'team': 'Inglaterra', 'percent':'6%', },
-            { 'team': 'Argentina', 'percent':'4%', }
-            ]
-        }
+        2: [
+            {'team': 'Brazil', 'percent': '55%'},
+            {'team': 'Spain', 'percent': '23%'},
+            {'team': 'Germany', 'percent': '12%', },
+            {'team': 'England', 'percent': '6%', },
+            {'team': 'Argentine', 'percent': '4%', },
+        ],
+        3: [
+            {'team': 'Brasil', 'percent': '55%'},
+            {'team': 'España', 'percent': '23%'},
+            {'team': 'Alemanha', 'percent': '12%', },
+            {'team': 'Inglaterra', 'percent': '6%', },
+            {'team': 'Argentina', 'percent': '4%', },
+        ],
+    }
     return JsonResponse(guess)
-
 
 
 @csrf_exempt
@@ -188,226 +190,51 @@ def api_last_games(request):
 
 
 def api_finals(request):
-    OITAVAS = [
-                {
-                    "home": "1º grupo A",
-                    "abbr_home": "1º A",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo B",
-                    "gols_visited": '',
-                    "abbr_visited": "2º B",
-                    "img_visited": "",
-                    "date": "Sábado 28/06",
-                    "local": 'Minerão - Belo Horizonte'
-                },
-                {
-                    "home": "1º grupo C",
-                    "abbr_home": "1º C",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo D",
-                    "gols_visited": '',
-                    "abbr_visited": "2º D",
-                    "img_visited": "",
-                    "date": "Sábado 28/06",
-                    "local": "Maracanã - Rio de Janeiro"
-                },
-                {
-                    "home": "1º grupo B",
-                    "abbr_home": "1º B",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo A",
-                    "gols_visited": '',
-                    "abbr_visited": "2º A",
-                    "img_visited": "",
-                    "date": "Domingo 29/06",
-                    "local": "Castelão - Fortaleza"
-                },
-                {
-                    "home": "1º grupo D",
-                    "abbr_home": "1º D",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo C",
-                    "gols_visited": '',
-                    "abbr_visited": "2º C",
-                    "img_visited": "",
-                    "date": "Domingo 29/06",
-                    "local": "Arena Pernanbuco - Recife"
-                },
-                {
-                    "home": "1º grupo E",
-                    "abbr_home": "1º E",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo F",
-                    "gols_visited": '',
-                    "abbr_visited": "2º F",
-                    "img_visited": "",
-                    "date": "Segunda-feira 30/06",
-                    "local": "Nacional de Brasília - Brasília"
-                },
-                {
-                    "home": "1º grupo G",
-                    "abbr_home": "1º G",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo H",
-                    "gols_visited": '',
-                    "abbr_visited": "2º H",
-                    "img_visited": "",
-                    "date": "Segunda-feira 30/06",
-                    "local": "Beira Rio - Porto Alegre"
-                },
-                {
-                    "home": "1º grupo F",
-                    "abbr_home": "1º F",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo E",
-                    "gols_visited": '',
-                    "abbr_visited": "2º E",
-                    "img_visited": "",
-                    "date": "Terça-feira 01/07",
-                    "local": "Arena São Paulo - São Paulo"
-                },
-                {
-                    "home": "1º grupo H",
-                    "abbr_home": "1º H",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º grupo G",
-                    "gols_visited": '',
-                    "abbr_visited": "2º G",
-                    "img_visited": "",
-                    "date": "Terça-feira 01/07",
-                    "local": "Fonte Nova - Salvador"
-                }
-            ]
-    QUARTAS = [
-                {
-                    "home": "1º classificado",
-                    "abbr_home": "1",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "2º classificado",
-                    "gols_visited": '',
-                    "abbr_visited": "2",
-                    "img_visited": "",
-                    "date": "Sexta-feira 04/07 ",
-                    "local": 'Castelão - Fortaleza'
-                },
-                {
-                    "home": "3º classificado",
-                    "abbr_home": "3",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "4º classificado",
-                    "gols_visited": '',
-                    "abbr_visited": "4",
-                    "img_visited": "",
-                    "date": "Sexta-feira 04/07 ",
-                    "local": "Maracanã - Rio de Janeiro"
-                },
-                {
-                    "home": "5º classificado",
-                    "abbr_home": "5",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "6º classificado",
-                    "gols_visited": '',
-                    "abbr_visited": "6",
-                    "img_visited": "",
-                    "date": "Sábado 05/07",
-                    "local": "Fonte Nova - Salvador"
-                },
-                {
-                    "home": "7º classificado",
-                    "abbr_home": "7",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "8º classificado",
-                    "gols_visited": '',
-                    "abbr_visited": "8",
-                    "img_visited": "",
-                    "date": "Sábado 05/07",
-                    "local": "Nacional de Brasília - Brasília"
-                }
-            ]
-    SEMI = [
-            {
-                "home": "1º classificado",
-                "abbr_home": "1",
-                "gols_home": '',
-                "img_home": "",
-                "visited": "2º classificado",
-                "gols_visited": '',
-                "abbr_visited": "2",
-                "img_visited": "",
-                "date": "Terça-feira 08/07",
-                "local": 'Minerão - Belo Horizonte'
-            },
-            {
-                "home": "3º classificado",
-                "abbr_home": "3",
-                "gols_home": '',
-                "img_home": "",
-                "visited": "4º classificado",
-                "gols_visited": '',
-                "abbr_visited": "4",
-                "img_visited": "",
-                "date": "Quarta-feira 09/07 ",
-                "local": "Arena São Paulo - São Paulo"
-            }
-        ]
-    FINAL = [
-                {
-                    "home": "Perdedor 1",
-                    "abbr_home": "1",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "Perdedor 2",
-                    "gols_visited": '',
-                    "abbr_visited": "2",
-                    "img_visited": "",
-                    "date": "Sábado 12/07",
-                    "local": 'Nacional de Brasília - Brasília'
-                },
-                {
-                    "home": "Ganhador 1",
-                    "abbr_home": "1",
-                    "gols_home": '',
-                    "img_home": "",
-                    "visited": "Ganhador 2",
-                    "gols_visited": '',
-                    "abbr_visited": "2",
-                    "img_visited": "",
-                    "date": "Domingo 13/07",
-                    "local": 'Maracanã - Rio de Janeiro'
-                }
-            ]
+    # lang = request.GET.get('lang', 1)
 
+    def create_match_list(type_match, lang):
+        dt = DateMultiLanguage(lang=lang)
+        _dict = []
+        matches_oitavas = Match.objects.filter(type_match=type_match)\
+            .select_relaed('stadium', 'team').order_by('day_match')
+
+        for match in matches_oitavas:
+            home = match.team_home
+            visited = match.team_visited
+
+            _dict.append({
+                "home": home.get_field('name', lang),
+                "abbr_home": home.abbr,
+                "gols_home": match.result_home,
+                "img_home": home.img_app,
+                "visited": visited.get_field('name', lang),
+                "gols_visited": match.result_visited,
+                "abbr_visited": visited.abbr,
+                "img_visited": visited.img_app,
+                "date": dt.day_week_with_date(match.day_match),
+                "local": "%s - %s" % (match.stadium.name,
+                                      match.stadium.get_city_display())
+            })
+        return _dict
 
     finals = {
         1: {
-            'oitavas': OITAVAS,
-            'quartas': QUARTAS,
-            'semi': SEMI,
-            'final': FINAL
+            'oitavas': create_match_list(3, 1),
+            'quartas': create_match_list(4, 1),
+            'semi': create_match_list(5, 1),
+            'final': create_match_list(7, 1)
             },
         2: {
-            'oitavas': OITAVAS,
-            'quartas': QUARTAS,
-            'semi': SEMI,
-            'final': FINAL
+            'oitavas': create_match_list(3, 2),
+            'quartas': create_match_list(4, 2),
+            'semi': create_match_list(5, 2),
+            'final': create_match_list(7, 2)
             },
         3: {
-            'oitavas': OITAVAS,
-            'quartas': QUARTAS,
-            'semi': SEMI,
-            'final': FINAL
+            'oitavas': create_match_list(3, 3),
+            'quartas': create_match_list(4, 3),
+            'semi': create_match_list(5, 3),
+            'final': create_match_list(7, 3)
             },
     }
     return JsonResponse(finals)

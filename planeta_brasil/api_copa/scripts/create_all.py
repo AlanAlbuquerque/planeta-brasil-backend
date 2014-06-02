@@ -6,6 +6,9 @@ def run():
     import create_stadium
     create_stadium.run()
 
+    import create_fake_team
+    create_fake_team.run()
+
     import create_team
     create_team.run()
 
@@ -21,8 +24,8 @@ def run():
     import create_new
     create_new.run()
 
-    import create_finals
-    create_finals.run()
+    import create_finais
+    create_finais.run()
 
-    import create_quarterfinals
-    create_quarterfinals.run()
+    import create_oitavas
+    create_oitavas.run()
