@@ -94,3 +94,11 @@ MEDIA_URL = '//s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
 STATIC_ROOT = "/%s/" % STATIC_S3_PATH
 STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+
+
+if DEBUG:
+    MEDIA_ROOT = '/media/'
+    MEDIA_URL = '/media/'
+    STATIC_ROOT = "/static/"
+    STATIC_URL = '/static/'
+    ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'

@@ -5,13 +5,15 @@ from django.shortcuts import render
 from planeta_brasil.util import JsonResponse
 from .models import News, Device, Guess, UserPhoto, Match
 from .util import get_state_for_request, DateMultiLanguage
+from .services import fetch_news, fetch_cultural_programming
 from datetime import datetime, timedelta, time
 
 
 @csrf_exempt
 def register_push_device(request):
     try:
-        devices = Device.objects.filter(push_key=request.POST.get('reg_id')).all()
+        devices = Device.objects.filter(
+            push_key=request.POST.get('reg_id')).all()
         if len(devices) == 0:
             device = Device()
             device.push_key = request.POST.get('reg_id')
@@ -24,38 +26,36 @@ def register_push_device(request):
     return JsonResponse({})
 
 
-
 def api_news(request):
-    news = []
     city = get_state_for_request(request)
-    lang = request.GET.get('lang', 1)
-    news_objs = News.objects.filter(Q(city__isnull=True) | Q(city=city)).order_by('-created')[:11]
-
-    for n in news_objs:
-        news.append({
-            'day': n.created.strftime('%d/%m'),
-            'id': str(n.id),
-            'title': n.get_field('name', lang),
-            'img': n.photo.thumb.url
-            })
+    lang = request.GET.get('lang', 'pt')
+    news = fetch_news(lang=lang, city=city)
 
     return JsonResponse(news)
 
 
+def api_cultural_programming(request):
+    city = get_state_for_request(request)
+    lang = request.GET.get('lang', 'pt')
+    cultural_programming = fetch_cultural_programming(lang=lang, city=city)
+
+    return JsonResponse(cultural_programming)
+
+
+def api_cultural_programming_detail(request, pk):
+    city = get_state_for_request(request)
+    lang = request.GET.get('lang', 'pt')
+    cultural_programming = fetch_cultural_programming(lang=lang, city=city,
+                                                      pk=pk)
+
+    return JsonResponse(cultural_programming)
+
 
 def api_news_detail(request, pk):
-    lang = request.GET.get('lang', 1)
-    n = News.objects.get(pk=pk)
-    show_news = {
-        'id': str(n.id),
-        'img': n.photo.full.url,
-        'title_img': n.photo.thumb.url,
-        'date': n.created.strftime('%d/%m'),
-        'title': n.get_field('name', lang),
-        'message': n.get_field('description', lang),
-    }
-    return JsonResponse(show_news)
+    lang = request.GET.get('lang', 'pt')
+    news = fetch_news(lang=lang, pk=pk)
 
+    return JsonResponse(news)
 
 
 @csrf_exempt
@@ -64,7 +64,7 @@ def api_photos(request):
         try:
             up = UserPhoto()
             up.photo = request.FILES['recFile']
-            up.lang = request.GET.get('lang', 1)
+            up.lang = request.GET.get('lang', 'pt')
             up.city = get_state_for_request(request)
             up.save()
             # destination = open('chegou.jpeg', 'wb+')
@@ -78,79 +78,78 @@ def api_photos(request):
     photos = []
     photos_objs = UserPhoto.objects.order_by('-created')[:11]
     for p in photos_objs:
-        photos.append({'name':'', 'img': p.thumb.url})
+        photos.append({'name': '', 'img': p.thumb.url})
     return JsonResponse(photos)
 
 
-
 def api_matches_by_groups(request):
-	matches = {
-	    'a': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ],
-	    'b': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ],
-	    'c': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ],
-	    'd': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ],
-	    'e': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ],
-	    'f': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ],
-	    'g': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ],
-	    'h': [
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	            {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-	        ]
-	}
-	return JsonResponse(matches)
+    matches = {
+        'a': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ],
+        'b': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ],
+        'c': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ],
+        'd': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ],
+        'e': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ],
+        'f': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ],
+        'g': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ],
+        'h': [
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
+            ]
+    }
+    return JsonResponse(matches)
 
 
 
@@ -161,26 +160,26 @@ def api_guesses(request):
         return JsonResponse({})
 
     guess = {
-    	1: [ { 'team': '_Brasil', 'percent': '55%' },
-        	{ 'team': 'Espanha', 'percent': '23%' },
-        	{ 'team': 'Alemanha', 'percent':'12%', },
-        	{ 'team': 'Inglaterra', 'percent':'6%', },
-        	{ 'team': 'Argentina', 'percent':'4%', },
-    	],
+        1: [ { 'team': '_Brasil', 'percent': '55%' },
+            { 'team': 'Espanha', 'percent': '23%' },
+            { 'team': 'Alemanha', 'percent':'12%', },
+            { 'team': 'Inglaterra', 'percent':'6%', },
+            { 'team': 'Argentina', 'percent':'4%', },
+        ],
 
-    	2: [ { 'team': '_Brazil', 'percent': '55%' },
-        	{ 'team': 'Spain', 'percent': '23%' },
-        	{ 'team': 'Germany', 'percent':'12%', },
-        	{ 'team': 'England', 'percent':'6%', },
-        	{ 'team': 'Argentine', 'percent':'4%', },
-    		],
-    	3: [ { 'team': '_Brasil', 'percent': '55%' },
-        	 { 'team': 'España', 'percent': '23%' },
-        	{ 'team': 'Alemanha', 'percent':'12%', },
-        	{ 'team': 'Inglaterra', 'percent':'6%', },
-        	{ 'team': 'Argentina', 'percent':'4%', }
-    		]
-    	}
+        2: [ { 'team': '_Brazil', 'percent': '55%' },
+            { 'team': 'Spain', 'percent': '23%' },
+            { 'team': 'Germany', 'percent':'12%', },
+            { 'team': 'England', 'percent':'6%', },
+            { 'team': 'Argentine', 'percent':'4%', },
+            ],
+        3: [ { 'team': '_Brasil', 'percent': '55%' },
+             { 'team': 'España', 'percent': '23%' },
+            { 'team': 'Alemanha', 'percent':'12%', },
+            { 'team': 'Inglaterra', 'percent':'6%', },
+            { 'team': 'Argentina', 'percent':'4%', }
+            ]
+        }
     return JsonResponse(guess)
 
 
@@ -199,10 +198,13 @@ def api_last_games(request):
     dt = DateMultiLanguage(lang=lang)
     lastGames = {
             'items': [],
-            'offset': 0,
-            'total': 11,
+            #FIXME What is offset?
+            'offset': '',
+
+            'total': '',
     }
 
+    #FIXME How many days in last games?
     period = datetime.now() - timedelta(days=5)
     period = datetime.combine(period, time(0, 0))
 
@@ -215,14 +217,17 @@ def api_last_games(request):
         lastGames['items'].append({
             "home": home.get_field('name', lang),
             "abbr_home": home.abbr,
-            "gols_home": int(match.result_home),
+            "gols_home": str(match.result_home),
             "img_home": home.img_app,
             "visited": visited.get_field('name', lang),
-            "gols_visited": int(match.result_visited),
+            "gols_visited": str(match.result_visited),
             "abbr_visited": visited.abbr,
             "img_visited": visited.img_app,
             "date": dt.day_week_with_date(match.day_match)
         })
+
+    lastGames['total'] = str(len(lastGames['items']))
+
 
     return JsonResponse(lastGames)
 
@@ -457,64 +462,13 @@ def api_finals(request):
 
 
 def  api_home(request):
+    city = get_state_for_request(request)
+    lang = request.GET.get('lang', 'pt')
+    news = fetch_news(lang=lang, city=city)
+
     home = {
-    "news": [
-        {
-            'day': '16/04',
-            'id': '1',
-            'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            'img': 'images/banner.png'
-        },
-        {
-            'day': '16/04',
-            'id': '1',
-            'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            'img': 'images/banner.png'
-        },
-        {
-            'day': '16/04',
-            'id': '1',
-            'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            'img': 'images/banner.png'
-        },
-        {
-            'day': '16/04',
-            'id': '1',
-            'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            'img': 'images/banner.png'
-        },
-        {
-            'day': '16/04',
-            'id': '1',
-            'title': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            'img': 'images/banner.png'
-        }
-    ],
+    "news": [news],
     "culturalProgramming": [
-        {
-            "id": 1,
-            "title": "OUÇA A MÚSICA OFICIAL DA COPA DO MUNDO NO BRASIL 2014.",
-            "describ": "Som é cantando por Claudia Leitte, Pitbull e Jennifer Lopez.",
-            "img": "images/media/thumb-1.png"
-        },
-        {
-            "id": 1,
-            "title": "OUÇA A MÚSICA OFICIAL DA COPA DO MUNDO NO BRASIL 2014.",
-            "describ": "Som é cantando por Claudia Leitte, Pitbull e Jennifer Lopez.",
-            "img": "images/media/thumb-1.png"
-        },
-        {
-            "id": 1,
-            "title": "OUÇA A MÚSICA OFICIAL DA COPA DO MUNDO NO BRASIL 2014.",
-            "describ": "Som é cantando por Claudia Leitte, Pitbull e Jennifer Lopez.",
-            "img": "images/media/thumb-1.png"
-        },
-        {
-            "id": 1,
-            "title": "OUÇA A MÚSICA OFICIAL DA COPA DO MUNDO NO BRASIL 2014.",
-            "describ": "Som é cantando por Claudia Leitte, Pitbull e Jennifer Lopez.",
-            "img": "images/media/thumb-1.png"
-        },
         {
             "id": 1,
             "title": "OUÇA A MÚSICA OFICIAL DA COPA DO MUNDO NO BRASIL 2014.",
@@ -533,84 +487,7 @@ def  api_home(request):
             "local": "Maracanã",
             "date": "Quarta 04/06",
             "type": "Amistoso"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        },
+        }
     ],
     "lastGames": [
         {
@@ -623,29 +500,7 @@ def  api_home(request):
             "abbr_visited": "CRO",
             "img_visited": "images/bandeiras/a2.png",
             "date": "Quarta 04/06"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "gols_home": 2,
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "gols_visited": 1,
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "date": "Quarta 04/06"
-        },
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "gols_home": 2,
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "gols_visited": 1,
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "date": "Quarta 04/06"
-        },
+        }
     ]
     }
     return JsonResponse(home)

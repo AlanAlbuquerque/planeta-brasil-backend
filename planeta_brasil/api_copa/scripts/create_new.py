@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from planeta_brasil.api_copa.models import News, Photo
-from django.core.files import File
+from planeta_brasil.api_copa.models import News
 from datetime import datetime
-import urllib
+from .get_external_img import img
+
 
 def run():
-    # CREATE AN PHOTO FOR TESTS
-    image_url = u'http://www.copa2014.gov.br/sites/default/files/styles/galeria_de_imagem_600_400/public/galeria/img_0592_15d00.jpg'
-    img = urllib.urlretrieve(image_url)[0]
-    img = File(open(img))
-
-    PHOTO_FILL = Photo.objects.create(photo=img)
+    PHOTO_FILL = img()
 
     db = {
         "news": [
