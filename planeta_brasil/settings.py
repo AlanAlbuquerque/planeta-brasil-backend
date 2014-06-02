@@ -27,6 +27,8 @@ INSTALLED_APPS = (
     's3_folder_storage',
     'planeta_brasil.api_copa',
     'planeta_brasil.aguia_verde',
+    'south',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -43,24 +45,24 @@ ROOT_URLCONF = 'planeta_brasil.urls'
 WSGI_APPLICATION = 'planeta_brasil.wsgi.application'
 
 
-# DATABASES = { 'default': { 'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
+DATABASES = { 'default': { 'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
 
-import dj_database_url
-DATABASES =  { 'default':  dj_database_url.config() }
+# import dj_database_url
+# DATABASES =  { 'default':  dj_database_url.config() }
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
-LANGUAGE_CODE = 'pt-br'
+TIME_ZONE = 'America/Sao_Paulo'
 
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'pt-br'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # STATICFILES_DIRS = (
@@ -92,3 +94,11 @@ MEDIA_URL = '//s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
 STATIC_ROOT = "/%s/" % STATIC_S3_PATH
 STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+
+
+if DEBUG:
+    MEDIA_ROOT = '/media/'
+    MEDIA_URL = '/media/'
+    STATIC_ROOT = "/static/"
+    STATIC_URL = '/static/'
+    ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'

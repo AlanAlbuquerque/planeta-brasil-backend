@@ -54,3 +54,27 @@ CITY_CHOICES = (
 	('PE', 'Recife'),
 	('BA', 'Salvador'),
 )
+
+
+GROUP_CHOICES = (
+	('', 'Nao é fase de grupo'),
+	('a', 'Grupo A'),
+	('b', 'Grupo B'),
+	('c', 'Grupo C'),
+	('d', 'Grupo D'),
+	('e', 'Grupo E'),
+	('f', 'Grupo F'),
+	('g', 'Grupo G'),
+	('h', 'Grupo H'),
+)
+
+
+TYPE_MATCH_CHOICES = (
+	(1, 'amistoso', 'Amistoso'),
+	(2, 'primeira_fase', 'Primeira Fase'),
+	(3, 'oitavas_de_finais', 'Oitavas de Final'),
+	(4, 'quartas_de_finais', 'Quartas de Final'),
+	(5, 'semi_finais', 'Semi-finais'),
+	(6, 'terceiro', 'Terceiro'),
+	(7, 'final', 'Final'),
+)
