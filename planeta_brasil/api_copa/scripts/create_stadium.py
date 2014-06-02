@@ -31,8 +31,8 @@ def run():
             "district": "BA",
         },
         {
-            "name": "Arena MT",
-            "district": "Cuiabá",
+            "name": "Arena Pantanal",
+            "district": "MT",
         },
         {
             "name": "Arena Pernambuco",
