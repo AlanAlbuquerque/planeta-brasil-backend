@@ -68,6 +68,8 @@ USE_L10N = True
 
 USE_TZ = False
 
+PREPEND_WWW = True
+
 
 # STATICFILES_DIRS = (
 #     os.path.join(BASE_DIR, "static"),
@@ -101,6 +103,7 @@ ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 
 if DEBUG:
+    PREPEND_WWW = False
     MEDIA_ROOT = '/media/'
     MEDIA_URL = '/media/'
     STATIC_ROOT = "/static/"
