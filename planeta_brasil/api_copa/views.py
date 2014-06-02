@@ -139,28 +139,29 @@ def api_guesses(request):
 def api_create_guesses(request, pk):
 
     if request.POST:
-        result_visited = request.POST.get('visited')
-        result_home = request.POST.get('home')
+        result_visited = request.POST.get('visited', '')
+        result_home = request.POST.get('home', '')
         email = request.POST.get('email')
         name = request.POST.get('name')
         match = get_object_or_404(Match, pk=pk)
 
         # Guess.objects.create(country=int(request.POST.get('country', '1')))
 
-        create_guess = GuessMatch.objects.filter(match=match, email=email)\
-            .update(
-                result_home=result_home,
-                result_visited=result_visited,
-            )
+        if result_visited and result_home:
+            create_guess = GuessMatch.objects.filter(match=match, email=email)\
+                .update(
+                    result_home=result_home,
+                    result_visited=result_visited,
+                )
 
-        if not create_guess:
-            create_guess = GuessMatch.objects.create(
-                email=email,
-                name=name,
-                result_home=result_home,
-                result_visited=result_visited,
-                match=match,
-            )
+            if not create_guess:
+                create_guess = GuessMatch.objects.create(
+                    email=email,
+                    name=name,
+                    result_home=result_home,
+                    result_visited=result_visited,
+                    match=match,
+                )
 
     return JsonResponse({})
 
