@@ -1,11 +1,13 @@
 #coding: utf-8
 from django.views.decorators.csrf import csrf_exempt
 from planeta_brasil.util import JsonResponse
-from .models import Device, Guess, UserPhoto, WeAre
+from .models import Device, Guess, UserPhoto, WeAre, GuessMatch, Match
 from .util import get_state_for_request
 from .services import (fetch_news, fetch_cultural_programming,
                        fetch_last_games, fetch_home, fetch_matches_by_groups)
 from .scripts import create_we_are
+from django.shortcuts import get_object_or_404
+from .strings import translation
 
 
 @csrf_exempt
@@ -90,9 +92,21 @@ def api_matches_by_groups(request):
 
 @csrf_exempt
 def api_guesses(request):
-    if request.POST:
-        Guess.objects.create(country=int(request.POST.get('country', '1')))
-        return JsonResponse({})
+
+    guesses = GuessMatch.objects.all()
+
+    dict_guess = {}
+
+    for guess in guesses:
+        if guess.result_home > guess.result_visited:
+            team_win = guess.match.team_home
+        elif guess.result_home < guess.result_visited:
+            team_win = guess.match.result_visited
+        else:
+            team_win = None
+        if team_win:
+            qtd_win = int(dict_guess.get('qtd_win', 0))
+            dict_guess.update({team_win.get_field('name', 'pt'): int(qtd_win + 1)})
 
     guess = {
         1: [ { 'team': '_Brasil', 'percent': '55%' },
@@ -116,6 +130,52 @@ def api_guesses(request):
             ]
         }
     return JsonResponse(guess)
+
+
+
+@csrf_exempt
+def api_create_guesses(request, pk):
+    lang = request.GET.get('lang', 1)
+    strings = translation(lang)
+
+    data = {
+        u'messages': {
+            u'errors': [],
+            u'success': u'',
+        },
+    }
+
+    errors = data['messages']['errors']
+
+    if request.POST:
+
+        result_visited = request.POST.get('visited')
+        result_home = request.POST.get('home')
+        email = request.POST.get('email')
+        name = request.POST.get('name')
+        match = get_object_or_404(Match, pk=pk)
+
+        #FIXME What this line create?
+        # Guess.objects.create(country=int(request.POST.get('country', '1')))
+
+        email_has_guess_match = GuessMatch.objects.filter(
+            match=match, email=str(email)).exists()
+
+        if email_has_guess_match:
+            errors.append(strings['email_has_guess_match'])
+
+        else:
+            GuessMatch.objects.create(
+                email=email,
+                name=name,
+                result_home=result_home,
+                result_visited=result_visited,
+                match=match,
+            )
+            data['messages']['success'] = strings['guess_match_registered_success']
+
+
+    return JsonResponse(data)
 
 
 def api_last_games(request):
