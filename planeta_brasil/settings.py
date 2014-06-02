@@ -22,7 +22,7 @@ else:
     DEBUG = False
     TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = ['.herokuapp.com', 'planetabrasilapp.com.br', ]
+ALLOWED_HOSTS = ['.herokuapp.com', '.planetabrasilapp.com.br', ]
 
 
 INSTALLED_APPS = (
