@@ -10,9 +10,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'wavzkd&v3$0p4y%m36cz(!1ga4l1u+j#1um8us(jc++mw(l!)j'
 
-DEBUG = True
+if os.environ.get('DJANGO_ENV', 'local') == 'local':
+    DEBUG = True
+    TEMPLATE_DEBUG = True
 
-TEMPLATE_DEBUG = True
+    DATABASES = { 'default': { 'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
+
+else:
+    import dj_database_url
+    DATABASES =  { 'default':  dj_database_url.config() }
+    DEBUG = False
+    TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -45,10 +53,6 @@ ROOT_URLCONF = 'planeta_brasil.urls'
 WSGI_APPLICATION = 'planeta_brasil.wsgi.application'
 
 
-DATABASES = { 'default': { 'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
-
-# import dj_database_url
-# DATABASES =  { 'default':  dj_database_url.config() }
 
 
 # Internationalization
