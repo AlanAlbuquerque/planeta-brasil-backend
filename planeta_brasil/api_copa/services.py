@@ -3,6 +3,7 @@ from django.db.models import Q
 from planeta_brasil.api_copa.models import News, CulturalProgramming, Match
 from .util import DateMultiLanguage
 from planeta_brasil.api_copa.constants import GROUP_CHOICES
+from datetime import datetime, timedelta
 
 
 def fetch_cultural_programming(lang='pt', city=None, **kwargs):
@@ -78,14 +79,15 @@ def fetch_last_games(lang='pt', page=0, limit=10):
     OFFSET = page if not page else int(page) * int(limit)
 
     dt = DateMultiLanguage(lang=lang)
+    now = datetime.now() + timedelta(hours=5)
 
     lastGames = {
         'items': [],
         'offset': OFFSET,
     }
 
-    matches = Match.objects.filter(is_finished=True)\
-        .order_by('-created')[OFFSET:limit+OFFSET]
+    matches = Match.objects.filter(is_finished=True, day_match__lt=now)\
+        .order_by('-day_match')[OFFSET:limit+OFFSET]
 
     for match in matches:
         home = match.team_home
@@ -113,14 +115,15 @@ def fetch_next_games(lang='pt', page=0, limit=10):
     OFFSET = page if not page else int(page) * int(limit)
 
     dt = DateMultiLanguage(lang=lang)
+    now = datetime.now() - timedelta(hours=5)
 
     nextGames = {
         'items': [],
         'offset': OFFSET,
     }
 
-    matches = Match.objects.filter(is_finished=False)\
-        .order_by('-created')[OFFSET:limit+OFFSET]
+    matches = Match.objects.filter(is_finished=False, day_match__gt=now)\
+        .order_by('day_match')[OFFSET:limit+OFFSET]
 
     for match in matches:
         home = match.team_home
@@ -151,10 +154,10 @@ def fetch_home(lang='pt', city=None):
     next_games = fetch_next_games(lang=lang, limit=8)
 
     home = {
-        "news": [news],
-        "culturalProgramming": [cp],
-        "nextMatches": [next_games['items']],
-        "lastGames": [last_games['items']]
+        "news": news,
+        "culturalProgramming": cp,
+        "nextMatches": next_games['items'],
+        "lastGames": last_games['items']
     }
 
     return home
