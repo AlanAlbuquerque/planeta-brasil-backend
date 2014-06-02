@@ -47,11 +47,11 @@ class DateMultiLanguage:
     def __init__(self, *args, **kwargs):
         lang = kwargs.get('lang', 'pt')
 
-        if isinstance(lang, int):
-            dict_lang = {1: 'pt', 2: 'en', 3: 'es'}
-            lang = dict_lang[lang]
+        if lang.isdigit():
+            _lang = {1: 'pt', 2: 'en', 3: 'es'}
+            lang = _lang[int(lang)]
 
-        self.lang = lang
+        self.lang = lang or 'pt'
 
         self.PATTERN_DATE = '%m/%d/%Y' if self.lang == 'en' else '%d/%m/%Y'
         self.PATTERN_DATE_SHORT = '%d/%m'

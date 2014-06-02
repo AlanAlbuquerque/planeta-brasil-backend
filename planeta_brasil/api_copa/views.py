@@ -109,20 +109,20 @@ def api_guesses(request):
             dict_guess.update({team_win.get_field('name', 'pt'): int(qtd_win + 1)})
 
     guess = {
-        1: [ { 'team': '_Brasil', 'percent': '55%' },
+        1: [ { 'team': 'Brasil', 'percent': '55%' },
             { 'team': 'Espanha', 'percent': '23%' },
             { 'team': 'Alemanha', 'percent':'12%', },
             { 'team': 'Inglaterra', 'percent':'6%', },
             { 'team': 'Argentina', 'percent':'4%', },
         ],
 
-        2: [ { 'team': '_Brazil', 'percent': '55%' },
+        2: [ { 'team': 'Brazil', 'percent': '55%' },
             { 'team': 'Spain', 'percent': '23%' },
             { 'team': 'Germany', 'percent':'12%', },
             { 'team': 'England', 'percent':'6%', },
             { 'team': 'Argentine', 'percent':'4%', },
             ],
-        3: [ { 'team': '_Brasil', 'percent': '55%' },
+        3: [ { 'team': 'Brasil', 'percent': '55%' },
              { 'team': 'España', 'percent': '23%' },
             { 'team': 'Alemanha', 'percent':'12%', },
             { 'team': 'Inglaterra', 'percent':'6%', },
