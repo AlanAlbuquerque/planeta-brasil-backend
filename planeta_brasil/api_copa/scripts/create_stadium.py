@@ -8,51 +8,51 @@ def run():
     stadiums = [
         {
             "name": "Maracanã",
-            "district": "Rio de Janeiro",
+            "district": "RJ",
         },
         {
             "name": "Mineirão",
-            "district": "Belo Horizonte",
+            "district": "MG",
         },
         {
             "name": "Arena Amazônia",
-            "district": "Manaus",
+            "district": "AM",
         },
         {
             "name": "Arena da Baixada",
-            "district": "Curitiba",
+            "district": "PR",
         },
         {
             "name": "Arena de São Paulo",
-            "district": "São Paulo",
+            "district": "SP",
         },
         {
             "name": "Arena Fonte Nova",
-            "district": "Salvador",
+            "district": "BA",
         },
         {
             "name": "Arena Pantanal",
-            "district": "Cuiabá",
+            "district": "MT",
         },
         {
             "name": "Arena Pernambuco",
-            "district": "Recife",
+            "district": "PE",
         },
         {
             "name": "Beira Rio",
-            "district": "Porto Alegre",
+            "district": "RS",
         },
         {
             "name": "Castelão",
-            "district": "Fortaleza",
+            "district": "CE",
         },
         {
             "name": "Arena das Dunas",
-            "district": "Natal",
+            "district": "RN",
         },
         {
             "name": "Nacional de Brasília",
-            "district": "Brasília",
+            "district": "DF",
         }
     ]
 
