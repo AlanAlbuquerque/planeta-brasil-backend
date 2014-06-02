@@ -137,7 +137,6 @@ def api_guesses(request):
 
 @csrf_exempt
 def api_create_guesses(request, pk):
-    data = {'status': False}
 
     if request.POST:
         result_visited = request.POST.get('visited')
@@ -163,10 +162,7 @@ def api_create_guesses(request, pk):
                 match=match,
             )
 
-            if create_guess:
-                data['status'] = True
-
-    return JsonResponse(data)
+    return JsonResponse({})
 
 
 def api_last_games(request):
