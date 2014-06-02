@@ -25,6 +25,7 @@ urlpatterns = patterns('',
 	url(r'^api/finals/$', 'planeta_brasil.api_copa.views.api_finals', name='api_finals'),
 	url(r'^api/home/$', 'planeta_brasil.api_copa.views.api_home', name='api_home'),
 
+	url(r'^api/we_are/$', 'planeta_brasil.api_copa.views.api_we_are', name='api_we_are'),
 
     url(r'^admin/', include(admin.site.urls)),
 )

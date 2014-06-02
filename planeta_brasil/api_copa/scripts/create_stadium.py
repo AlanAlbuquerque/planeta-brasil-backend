@@ -59,10 +59,19 @@ def run():
     # CREATE Stadium
 
     def create_stadium():
+        dict_not_creted = []
         for st in stadiums:
-            Stadium.objects.create(
-                name=st.get('name', ''),
-                city=st.get('district', ''),
-            )
+            stadium = Stadium.objects.filter(city=st.get('district', ''))
+
+            if not stadium:
+                Stadium.objects.create(
+                    name=st.get('name', ''),
+                    city=st.get('district', ''),
+                )
+            else:
+                dict_not_creted.append(stadium[0].name)
+
+        if dict_not_creted:
+            print "Estádio já existe e não foi criado: %s" % (dict_not_creted)
 
     create_stadium()

@@ -396,15 +396,34 @@ def run():
 
     # CREATE First Round
 
-    def create_team():
+    def create_first_match():
+        dict_not_creted = []
         for m in matches:
-            Match.objects.create(
+            get_matches = Match.objects.filter(
                 day_match=m.get('day'),
                 type_match=m.get('type'),
                 team_home=m.get('home'),
                 team_visited=m.get('visited'),
                 group=m.get('group'),
-                stadium=m.get('stadium'))
+                stadium=m.get('stadium'),
+            )
 
+            if not get_matches:
+                Match.objects.create(
+                    day_match=m.get('day'),
+                    type_match=m.get('type'),
+                    team_home=m.get('home'),
+                    team_visited=m.get('visited'),
+                    group=m.get('group'),
+                    stadium=m.get('stadium'),
+                )
+            else:
+                dict_not_creted.append({
+                    'visited': get_matches[0].team_visited,
+                    'home': get_matches[0].team_home,
+                })
 
-    create_team()
+        if dict_not_creted:
+            print "Partida já existe e não foi criado: %s" % (dict_not_creted)
+
+    create_first_match()

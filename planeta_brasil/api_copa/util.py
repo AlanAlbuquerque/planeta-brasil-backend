@@ -48,7 +48,7 @@ class DateMultiLanguage:
         self.lang = kwargs.pop('lang')
 
         self.PATTERN_DATE = '%m/%d/%Y' if self.lang == 'en' else '%d/%m/%Y'
-        self.PATTERN_DATE_SHORT = '%m/%d'
+        self.PATTERN_DATE_SHORT = '%d/%m'
 
     def day_week(self, date):
         if self.lang == 'en':
@@ -81,7 +81,11 @@ class DateMultiLanguage:
         return day_long
 
     def date_str(self, date):
+
         return datetime.strftime(date, self.PATTERN_DATE)
+
+    def date_short_str(self, date):
+        return datetime.strftime(date, self.PATTERN_DATE_SHORT)
 
     def day_week_with_date(self, date):
         day_week = self.day_week(date)

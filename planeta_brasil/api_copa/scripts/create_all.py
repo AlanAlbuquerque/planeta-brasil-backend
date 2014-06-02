@@ -3,12 +3,6 @@
 
 def run():
 
-    import create_cultural_programming
-    create_cultural_programming.run()
-
-    import create_new
-    create_new.run()
-
     import create_stadium
     create_stadium.run()
 
@@ -18,8 +12,17 @@ def run():
     import create_first_match
     create_first_match.run()
 
-    import create_finals
-    create_finals.run()
+    import create_we_are
+    create_we_are.run()
 
-    import create_quarterfinals
-    create_quarterfinals.run()
+    # import create_cultural_programming
+    # create_cultural_programming.run()
+
+    # import create_new
+    # create_new.run()
+
+    # import create_finals
+    # create_finals.run()
+
+    # import create_quarterfinals
+    # create_quarterfinals.run()

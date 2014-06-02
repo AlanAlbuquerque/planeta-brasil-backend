@@ -29,6 +29,10 @@ class MultLangContent(TimeStampedModel):
         }
 
     def get_field(self, field, lang=None):
+        if isinstance(lang, int):
+            _lang = {1: 'pt', 2: 'en', 3: 'es'}
+            lang = _lang[lang]
+
         lang = lang or 'pt'
         return getattr(self, '%s_%s' % (field, lang))
 
@@ -138,6 +142,8 @@ class Match(TimeStampedModel):
             self.city = self.stadium.city
         return super(Match, self).save(*args, **kwargs)
 
+    __unicode__ = lambda x: x.get_type_match_display()
+
 
 class Locals(MultLangContent):
     logo = ImageSpecField(source='photo', processors=[ResizeToFill(60, 60)], format='JPEG', options={'quality': 60})
@@ -175,3 +181,16 @@ class GuessMatch(TimeStampedModel):
 #       if self._video_id:
 #           return "http://img.youtube.com/vi/%s/0.jpg" % self.video_id
 #       return ''
+
+
+class WeAreQuerySet(models.query.QuerySet):
+    def create(self, *args, **kwargs):
+        self.all().delete()
+        return super(WeAreQuerySet, self).create(*args, **kwargs)
+
+class WeAreManager(models.Manager):
+    def get_query_set(self):
+        return WeAreQuerySet(self.model, using=self._db)
+
+class WeAre(MultLangContent):
+    objects = WeAreManager()

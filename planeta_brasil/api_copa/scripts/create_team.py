@@ -233,13 +233,23 @@ def run():
     # CREATE Team
 
     def create_team():
+        dict_not_creted = []
         for team in teamPerGroup:
-            Team.objects.create(
-                name_pt=team.get(1, ''),
-                name_en=team.get(2, ''),
-                name_es=team.get(3, ''),
-                img_app=team.get('img_app', ''),
-                abbr=team.get('abbr', ''),
-            )
+            get_team = Team.objects.filter(abbr=team.get('abbr', ''))
+
+            if not get_team:
+                Team.objects.create(
+                    name_pt=team.get(1, ''),
+                    name_en=team.get(2, ''),
+                    name_es=team.get(3, ''),
+                    img_app=team.get('img_app', ''),
+                    abbr=team.get('abbr', ''),
+                )
+            else:
+                dict_not_creted.append(get_team[0].abbr)
+
+        if dict_not_creted:
+            print "Time já existe e não foi criado: %s" % (dict_not_creted)
 
     create_team()
+

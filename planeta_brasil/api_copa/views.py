@@ -1,12 +1,11 @@
 #coding: utf-8
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
-from django.shortcuts import render
 from planeta_brasil.util import JsonResponse
-from .models import News, Device, Guess, UserPhoto, Match
-from .util import get_state_for_request, DateMultiLanguage
-from .services import fetch_news, fetch_cultural_programming
-from datetime import datetime, timedelta, time
+from .models import Device, Guess, UserPhoto, WeAre
+from .util import get_state_for_request
+from .services import (fetch_news, fetch_cultural_programming,
+                       fetch_last_games, fetch_home, fetch_matches_by_groups)
+from .scripts import create_we_are
 
 
 @csrf_exempt
@@ -28,7 +27,7 @@ def register_push_device(request):
 
 def api_news(request):
     city = get_state_for_request(request)
-    lang = request.GET.get('lang', 'pt')
+    lang = request.GET.get('lang', 1)
     news = fetch_news(lang=lang, city=city)
 
     return JsonResponse(news)
@@ -36,7 +35,7 @@ def api_news(request):
 
 def api_cultural_programming(request):
     city = get_state_for_request(request)
-    lang = request.GET.get('lang', 'pt')
+    lang = request.GET.get('lang', 1)
     cultural_programming = fetch_cultural_programming(lang=lang, city=city)
 
     return JsonResponse(cultural_programming)
@@ -44,7 +43,7 @@ def api_cultural_programming(request):
 
 def api_cultural_programming_detail(request, pk):
     city = get_state_for_request(request)
-    lang = request.GET.get('lang', 'pt')
+    lang = request.GET.get('lang', 1)
     cultural_programming = fetch_cultural_programming(lang=lang, city=city,
                                                       pk=pk)
 
@@ -52,7 +51,7 @@ def api_cultural_programming_detail(request, pk):
 
 
 def api_news_detail(request, pk):
-    lang = request.GET.get('lang', 'pt')
+    lang = request.GET.get('lang', 1)
     news = fetch_news(lang=lang, pk=pk)
 
     return JsonResponse(news)
@@ -64,7 +63,7 @@ def api_photos(request):
         try:
             up = UserPhoto()
             up.photo = request.FILES['recFile']
-            up.lang = request.GET.get('lang', 'pt')
+            up.lang = request.GET.get('lang', 1)
             up.city = get_state_for_request(request)
             up.save()
             # destination = open('chegou.jpeg', 'wb+')
@@ -83,72 +82,8 @@ def api_photos(request):
 
 
 def api_matches_by_groups(request):
-    matches = {
-        'a': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ],
-        'b': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ],
-        'c': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ],
-        'd': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ],
-        'e': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ],
-        'f': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ],
-        'g': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ],
-        'h': [
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-                {'day':'12/06', 'home': 'Brasil_API', 'visited': 'Croacia', 'result': '5 x 3'},
-            ]
-    }
+    lang = request.GET.get('lang', 1)
+    matches = fetch_matches_by_groups(lang=lang)
     return JsonResponse(matches)
 
 
@@ -183,54 +118,13 @@ def api_guesses(request):
     return JsonResponse(guess)
 
 
-
-
-
-
-
-
-
-
-
 def api_last_games(request):
-    # print request.GET.get('page', '0')
-    lang = request.GET.get('lang', 'pt')
-    dt = DateMultiLanguage(lang=lang)
-    lastGames = {
-            'items': [],
-            #FIXME What is offset?
-            'offset': '',
-
-            'total': '',
-    }
-
-    #FIXME How many days in last games?
-    period = datetime.now() - timedelta(days=5)
-    period = datetime.combine(period, time(0, 0))
-
-    matches = Match.objects.filter(day_match__gt=period)
-
-    for match in matches:
-        home = match.team_home
-        visited = match.team_visited
-
-        lastGames['items'].append({
-            "home": home.get_field('name', lang),
-            "abbr_home": home.abbr,
-            "gols_home": str(match.result_home),
-            "img_home": home.img_app,
-            "visited": visited.get_field('name', lang),
-            "gols_visited": str(match.result_visited),
-            "abbr_visited": visited.abbr,
-            "img_visited": visited.img_app,
-            "date": dt.day_week_with_date(match.day_match)
-        })
-
-    lastGames['total'] = str(len(lastGames['items']))
-
+    lang = request.GET.get('lang', 1)
+    page = request.GET.get('page', 0)
+    LIMIT = request.GET.get('limit', 10)
+    lastGames = fetch_last_games(lang=lang, page=page, limit=LIMIT)
 
     return JsonResponse(lastGames)
-
 
 
 def api_finals(request):
@@ -459,50 +353,11 @@ def api_finals(request):
     return JsonResponse(finals)
 
 
-
-
-def  api_home(request):
+def api_home(request):
     city = get_state_for_request(request)
-    lang = request.GET.get('lang', 'pt')
-    news = fetch_news(lang=lang, city=city)
+    lang = request.GET.get('lang', 1)
+    home = fetch_home(lang=lang, city=city)
 
-    home = {
-    "news": [news],
-    "culturalProgramming": [
-        {
-            "id": 1,
-            "title": "OUÇA A MÚSICA OFICIAL DA COPA DO MUNDO NO BRASIL 2014.",
-            "describ": "Som é cantando por Claudia Leitte, Pitbull e Jennifer Lopez.",
-            "img": "images/media/thumb-1.png"
-        }
-    ],
-    "nextMatches": [
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "local": "Maracanã",
-            "date": "Quarta 04/06",
-            "type": "Amistoso"
-        }
-    ],
-    "lastGames": [
-        {
-            "home": "Brasil",
-            "abbr_home": "BRA",
-            "gols_home": 2,
-            "img_home": "images/bandeiras/a1.png",
-            "visited": "Croacia",
-            "gols_visited": 1,
-            "abbr_visited": "CRO",
-            "img_visited": "images/bandeiras/a2.png",
-            "date": "Quarta 04/06"
-        }
-    ]
-    }
     return JsonResponse(home)
 
 
@@ -517,3 +372,18 @@ def api_venue_detail(request, pk):
     }
     return JsonResponse(venue)
 
+
+def api_we_are(request):
+    lang = request.GET.get('lang', 1)
+
+    try:
+        obj = WeAre.objects.latest('id')
+    except Exception:
+        obj = create_we_are.run()
+
+    we_are = {
+        "title": obj.get_field('name', lang),
+        "description": obj.get_field('description', lang)
+    }
+
+    return JsonResponse(we_are)
