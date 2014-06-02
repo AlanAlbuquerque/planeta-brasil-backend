@@ -43,15 +43,22 @@ def get_state_for_request(request):
     return 'RJ'
 
 
-class DateMultiLanguage:
-    def __init__(self, *args, **kwargs):
-        lang = kwargs.get('lang', 'pt')
+def get_lang(lang):
+    _lang = {1: 'pt', 2: 'en', 3: 'es'}
 
+    if type(lang) == str or type(lang) == unicode:
         if lang.isdigit():
-            _lang = {1: 'pt', 2: 'en', 3: 'es'}
             lang = _lang[int(lang)]
 
-        self.lang = lang or 'pt'
+    if type(lang) == int:
+        lang = _lang[lang]
+
+    return lang or 'pt'
+
+
+class DateMultiLanguage:
+    def __init__(self, *args, **kwargs):
+        self.lang = get_lang(kwargs.get('lang', 'pt'))
 
         self.PATTERN_DATE = '%m/%d/%Y' if self.lang == 'en' else '%d/%m/%Y'
         self.PATTERN_DATE_SHORT = '%d/%m'

@@ -5,6 +5,7 @@ from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 from constants import CITY_CHOICES, GROUP_CHOICES, TYPE_MATCH_CHOICES
 from model_utils.choices import Choices
+from .util import get_lang
 
 
 class MultLangContent(TimeStampedModel):
@@ -29,16 +30,7 @@ class MultLangContent(TimeStampedModel):
         }
 
     def get_field(self, field, lang=None):
-        _lang = {1: 'pt', 2: 'en', 3: 'es'}
-        if type(lang) == str or type(lang) == unicode:
-            if lang.isdigit():
-                lang = _lang[int(lang)]
-
-        if type(lang) == int:
-            lang = _lang[lang]
-
-        lang = lang or 'pt'
-        return getattr(self, '%s_%s' % (field, lang))
+        return getattr(self, '%s_%s' % (field, get_lang(lang)))
 
 
 class Guess(TimeStampedModel):
