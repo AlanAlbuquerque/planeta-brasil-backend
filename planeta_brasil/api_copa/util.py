@@ -1,7 +1,7 @@
 #coding: utf-8
 import requests
 from datetime import datetime
-
+from django.http import Http404
 
 REGION_CODE_TO_STATE = {
     '11': 'SP',
