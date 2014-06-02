@@ -8,7 +8,6 @@ django-s3-folder-storage==0.2
 django-toolbelt==0.0.1
 -e git+https://github.com/SmileyChris/easy-thumbnails.git@fef1a12108a9d9484a6258a042256a6622161ee0#egg=easy_thumbnails-master
 pilkit==1.1.6
-psycopg2==2.5.2
 pygeoip==0.3.1
 pystache==0.5.3
 python-gcm==0.1.5
