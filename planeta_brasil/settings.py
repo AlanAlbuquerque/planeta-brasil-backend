@@ -68,6 +68,8 @@ USE_L10N = True
 
 USE_TZ = False
 
+PREPEND_WWW = False
+
 
 # STATICFILES_DIRS = (
 #     os.path.join(BASE_DIR, "static"),
