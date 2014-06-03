@@ -1,5 +1,6 @@
 #coding: utf-8
-from .models import Device, Guess, UserPhoto, WeAre, GuessMatch, Match, Team
+from .models import (Device, Guess, UserPhoto, WeAre, GuessMatch, Match, Team,
+                     UserGuess, )
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from planeta_brasil.util import JsonResponse
@@ -111,31 +112,39 @@ def api_guesses(request):
 
 @csrf_exempt
 def api_create_guesses(request, pk):
-
     if request.POST:
+
         result_visited = request.POST.get('visited')
         result_home = request.POST.get('home')
         email = request.POST.get('email')
         name = request.POST.get('name')
         match = get_object_or_404(Match, pk=pk)
 
-        create_guess = GuessMatch.objects.filter(match=match, email=email)\
-            .update(
+        user = UserGuess.objects.filter(email=email)
+
+        if user:
+            user = user[0]
+        else:
+            user = UserGuess.objects.create(name=name, email=email)
+
+        user_has_guess_match = GuessMatch.objects.filter(
+            match=match, user=user)
+
+        if user_has_guess_match:
+            user_has_guess_match.update(
                 result_home=result_home,
                 result_visited=result_visited,
             )
 
-        if not create_guess:
-            create_guess = GuessMatch.objects.create(
-                email=email,
-                name=name,
+        else:
+            GuessMatch.objects.create(
+                user=user,
                 result_home=result_home,
                 result_visited=result_visited,
                 match=match,
             )
 
-    return JsonResponse({})
-
+    return JsonResponse({'status': True})
 
 
 @csrf_exempt

@@ -30,5 +30,5 @@ urlpatterns = patterns('',
     url(r'^api/match/(?P<pk>\d)$', 'planeta_brasil.api_copa.views.api_create_guesses', name='api_create_guesses'),
 
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'', include(admin.site.urls)),
 )

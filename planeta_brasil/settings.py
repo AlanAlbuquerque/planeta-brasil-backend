@@ -26,7 +26,6 @@ ALLOWED_HOSTS = ['.herokuapp.com', '.planetabrasilapp.com.br', ]
 
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -37,6 +36,10 @@ INSTALLED_APPS = (
     'planeta_brasil.aguia_verde',
     'south',
     'django_extensions',
+    'bootstrap_admin',
+    'django_admin_bootstrapped.bootstrap3',
+    'django_admin_bootstrapped',
+    'django.contrib.admin',
 )
 
 MIDDLEWARE_CLASSES = (

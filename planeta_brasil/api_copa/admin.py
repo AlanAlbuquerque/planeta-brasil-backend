@@ -1,54 +1,58 @@
 #coding: utf-8
 from django.contrib import admin
-from .models import News, Photo
+from .models import *
 
 
 class PhotoInline(admin.StackedInline):
     model = Photo
     extra = 1
 
-
 class PhotoAdmin(admin.ModelAdmin):
     pass#inlines = [ PhotoInline, ]
 
 admin.site.register(Photo, PhotoAdmin)
-
 
 class NewsAdmin(admin.ModelAdmin):
     pass#inlines = [ PhotoInline, ]
 
 admin.site.register(News, NewsAdmin)
 
+class StadiumAdmin(admin.ModelAdmin):
+	inlines = [ PhotoInline, ]
+
+admin.site.register(Stadium, StadiumAdmin)
+
+class MatchAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Match, MatchAdmin)
 
 
+class GuessAdmin(admin.ModelAdmin):
+    pass
 
-# class CityAdmin(admin.ModelAdmin):
-#     inlines = [ PhotoInline, ]
-
-# admin.site.register(City, CityAdmin)
-
-
-# class StadiumAdmin(admin.ModelAdmin):
-# 	inlines = [ PhotoInline, ]
-
-# admin.site.register(Stadium, StadiumAdmin)
+admin.site.register(Guess, GuessAdmin)
 
 
-# class CountryAdmin(admin.ModelAdmin):
-#     pass
+class CulturalProgrammingAdmin(admin.ModelAdmin):
+    pass
 
-# admin.site.register(Country, CountryAdmin)
-
-
-# class MatchAdmin(admin.ModelAdmin):
-#     pass
-
-# admin.site.register(Match, MatchAdmin)
+admin.site.register(CulturalProgramming, CulturalProgrammingAdmin)
 
 
+class TeamAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Team, TeamAdmin)
 
 
-# class VideoAdmin(admin.ModelAdmin):
-#     pass
+class LocalsAdmin(admin.ModelAdmin):
+    pass
 
-# admin.site.register(Video)
+admin.site.register(Locals, LocalsAdmin)
+
+
+class GuessMatchAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(GuessMatch, GuessMatchAdmin)

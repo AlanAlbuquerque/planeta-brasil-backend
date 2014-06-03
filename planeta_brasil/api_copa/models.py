@@ -156,18 +156,23 @@ class Match(TimeStampedModel):
 
 
 class Locals(MultLangContent):
+    city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
+    photo = models.ImageField(upload_to='local_photos', blank=False, null=True)
     logo = ImageSpecField(source='photo', processors=[ResizeToFill(60, 60)], format='JPEG', options={'quality': 60})
 
 
 class GuessMatch(TimeStampedModel):
-    email = models.EmailField(max_length=80)
-    name = models.CharField(max_length=50)
+    user = models.ForeignKey('api_copa.UserGuess', null=True, related_name='guesses', blank=True)
     match = models.ForeignKey('api_copa.Match', null=True, related_name='matches_guess', blank=True)
 
     result_home = models.PositiveSmallIntegerField(default=0)
     result_visited = models.PositiveSmallIntegerField(default=0)
-
     hit = models.BooleanField(default=False)
+
+
+class UserGuess(TimeStampedModel):
+    email = models.TextField(max_length=80)
+    name = models.CharField(max_length=50)
 
 # GuessMatch.objects.distinct('email').extra(
 #     select={

@@ -1,12 +1,13 @@
 #coding: utf-8
 from django.db.models import Q
-from planeta_brasil.api_copa.models import News, CulturalProgramming, Match
+from planeta_brasil.api_copa.models import (News, CulturalProgramming, Match,
+                                            Locals, )
 from .util import DateMultiLanguage
 from planeta_brasil.api_copa.constants import GROUP_CHOICES
 from datetime import datetime, timedelta
 
 
-def fetch_cultural_programming(lang='pt', city=None, **kwargs):
+def fetch_cultural_programming(lang='pt', city='RJ', **kwargs):
     '''
         fetch_cultural_programming(lang=lang, city=city, [pk=pk OR id=pk] )
     '''
@@ -40,7 +41,7 @@ def fetch_cultural_programming(lang='pt', city=None, **kwargs):
     return dict_cp
 
 
-def fetch_news(lang='pt', city=None, **kwargs):
+def fetch_news(lang='pt', city='RJ', **kwargs):
     '''
         fetch_news(lang=lang, city=city, [pk=pk OR id=pk] )
     '''
@@ -147,10 +148,23 @@ def fetch_next_games(lang='pt', page=0, limit=10):
     return nextGames
 
 
-def fetch_home(lang='pt', city=None):
+def fetch_locals(lang='pt', city='RJ'):
+    dict_obj = []
+    objs = Locals.objects.filter(
+        Q(city__isnull=True) | Q(city=city)).order_by('-created')[:3]
+    for obj in objs:
+        dict_obj.append({
+            'title': obj.get_field('name', lang),
+            'img': obj.logo.url,
+        })
+    return dict_obj
+
+
+def fetch_home(lang='pt', city='RJ'):
 
     news = fetch_news(lang=lang, city=city)
     cp = fetch_cultural_programming(lang=lang, city=city)
+    local = fetch_locals(lang=lang, city=city)
     last_games = fetch_last_games(lang=lang, limit=3)
     next_games = fetch_next_games(lang=lang, limit=8)
 
@@ -158,7 +172,8 @@ def fetch_home(lang='pt', city=None):
         "news": news,
         "culturalProgramming": cp,
         "nextMatches": next_games['items'],
-        "lastGames": last_games['items']
+        "lastGames": last_games['items'],
+        "locals": local,
     }
 
     return home
