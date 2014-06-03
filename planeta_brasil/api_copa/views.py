@@ -1,14 +1,14 @@
 #coding: utf-8
+from .models import Device, Guess, UserPhoto, WeAre, GuessMatch, Match, Team
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 from planeta_brasil.util import JsonResponse
-from .models import Device, Guess, UserPhoto, WeAre, GuessMatch, Match
 from .util import get_state_for_request
+from .util import DateMultiLanguage
+from django.db.models import Count
+from .scripts import create_we_are
 from .services import (fetch_news, fetch_cultural_programming,
                        fetch_last_games, fetch_home, fetch_matches_by_groups)
-from .scripts import create_we_are
-from django.shortcuts import get_object_or_404
-from .strings import translation
-from .util import DateMultiLanguage
 
 
 @csrf_exempt
@@ -92,76 +92,61 @@ def api_matches_by_groups(request):
 
 @csrf_exempt
 def api_guesses(request):
+    response = []
+    lang = request.GET.get('lang', 1)
 
-    guesses = GuessMatch.objects.all()
+    if request.POST:
+        country = request.POST.get('country')
+        email = request.POST.get('email')
+        country = Team.objects.get(pk=country)
+        create_guess = Guess.objects.filter(email=email)\
+            .update(
+                country=country,
+            )
+        if not create_guess:
+            create_guess = Guess.objects.create(
+                email=email,
+                country=country,
+            )
 
-    dict_guess = {}
+    teams = Team.objects.filter(teams_guess__isnull=False)\
+                .annotate(count=Count('teams_guess')).order_by('count')
 
-    for guess in guesses:
-        if guess.result_home > guess.result_visited:
-            team_win = guess.match.team_home
-        elif guess.result_home < guess.result_visited:
-            team_win = guess.match.result_visited
-        else:
-            team_win = None
-        if team_win:
-            qtd_win = int(dict_guess.get('qtd_win', 0))
-            dict_guess.update({
-                team_win.get_field('name', 'pt'): int(qtd_win + 1)})
+    total_guess = Guess.objects.all().aggregate(sum=Count('id'))
+    for team in teams:
+        percent = int((float(team.count) / total_guess['sum']) * 100)
+        response.append({
+            'team': team.get_field('name', lang),
+            'percent': '{0}%'.format(percent)
+        })
 
-    guess = {
-        1: [
-            {'team': 'Brasil', 'percent': '55%'},
-            {'team': 'Espanha', 'percent': '23%'},
-            {'team': 'Alemanha', 'percent': '12%', },
-            {'team': 'Inglaterra', 'percent': '6%', },
-            {'team': 'Argentina', 'percent': '4%', },
-        ],
-        2: [
-            {'team': 'Brazil', 'percent': '55%'},
-            {'team': 'Spain', 'percent': '23%'},
-            {'team': 'Germany', 'percent': '12%', },
-            {'team': 'England', 'percent': '6%', },
-            {'team': 'Argentine', 'percent': '4%', },
-        ],
-        3: [
-            {'team': 'Brasil', 'percent': '55%'},
-            {'team': 'España', 'percent': '23%'},
-            {'team': 'Alemanha', 'percent': '12%', },
-            {'team': 'Inglaterra', 'percent': '6%', },
-            {'team': 'Argentina', 'percent': '4%', },
-        ],
-    }
-    return JsonResponse(guess)
+    return JsonResponse(response)
 
 
 @csrf_exempt
 def api_create_guesses(request, pk):
 
     if request.POST:
-        result_visited = request.POST.get('visited', '')
-        result_home = request.POST.get('home', '')
+        result_visited = request.POST.get('visited')
+        result_home = request.POST.get('home')
         email = request.POST.get('email')
         name = request.POST.get('name')
         match = get_object_or_404(Match, pk=pk)
 
-        # Guess.objects.create(country=int(request.POST.get('country', '1')))
+        create_guess = GuessMatch.objects.filter(match=match, email=email)\
+            .update(
+                result_home=result_home,
+                result_visited=result_visited,
+            )
 
-        if result_visited and result_home:
-            create_guess = GuessMatch.objects.filter(match=match, email=email)\
-                .update(
-                    result_home=result_home,
-                    result_visited=result_visited,
-                )
-
-            if not create_guess:
-                create_guess = GuessMatch.objects.create(
-                    email=email,
-                    name=name,
-                    result_home=result_home,
-                    result_visited=result_visited,
-                    match=match,
-                )
+        if not create_guess:
+            create_guess = GuessMatch.objects.create(
+                email=email,
+                name=name,
+                result_home=result_home,
+                result_visited=result_visited,
+                match=match,
+            )
 
     return JsonResponse({})
 

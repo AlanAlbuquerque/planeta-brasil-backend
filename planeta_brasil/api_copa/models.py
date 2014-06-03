@@ -34,10 +34,9 @@ class MultLangContent(TimeStampedModel):
 
 
 class Guess(TimeStampedModel):
-    country = models.PositiveIntegerField()
-    user_id = models.TextField(blank=True)
-    city = models.CharField(choices=CITY_CHOICES, max_length=2, null=True, blank=True)
-    lang = models.PositiveSmallIntegerField(default=1)
+    email = models.TextField(blank=True)
+    team = models.ForeignKey('api_copa.Team', null=True,
+                             related_name='teams_guess', blank=True)
 
 
 class Device(models.Model):
