@@ -18,6 +18,7 @@ urlpatterns = patterns('',
 
     url(r'^api/photos/$', 'planeta_brasil.api_copa.views.api_photos', name='api_photos'),
     url(r'^api/guesses/$', 'planeta_brasil.api_copa.views.api_guesses', name='api_guesses'),
+    url(r'^api/create-guesses/$', 'planeta_brasil.api_copa.views.api_create_guess', name='api_create_guess'),
 
     url(r'^api/venue/(?P<pk>\d)/$', 'planeta_brasil.api_copa.views.api_venue_detail', name='api_venue_detail'),
     url(r'^api/matches_by_groups/$', 'planeta_brasil.api_copa.views.api_matches_by_groups', name='api_matches_by_groups'),

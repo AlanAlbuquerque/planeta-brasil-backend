@@ -95,20 +95,6 @@ def api_guesses(request):
     response = []
     lang = request.GET.get('lang', 1)
 
-    if request.POST:
-        country = request.POST.get('country')
-        email = request.POST.get('email')
-        country = Team.objects.get(pk=country)
-        create_guess = Guess.objects.filter(email=email)\
-            .update(
-                country=country,
-            )
-        if not create_guess:
-            create_guess = Guess.objects.create(
-                email=email,
-                country=country,
-            )
-
     teams = Team.objects.filter(teams_guess__isnull=False)\
                 .annotate(count=Count('teams_guess')).order_by('count')
 
@@ -146,6 +132,27 @@ def api_create_guesses(request, pk):
                 result_home=result_home,
                 result_visited=result_visited,
                 match=match,
+            )
+
+    return JsonResponse({})
+
+
+
+@csrf_exempt
+def api_create_guess(request):
+
+    if request.POST:
+        country = request.POST.get('country')
+        email = request.POST.get('email')
+        country = Team.objects.get(pk=country)
+        create_guess = Guess.objects.filter(email=email)\
+            .update(
+                team=country,
+            )
+        if not create_guess:
+            create_guess = Guess.objects.create(
+                email=email,
+                team=country,
             )
 
     return JsonResponse({})
