@@ -29,3 +29,6 @@ def run():
 
     import create_oitavas
     create_oitavas.run()
+
+    import create_locals
+    create_locals.run()

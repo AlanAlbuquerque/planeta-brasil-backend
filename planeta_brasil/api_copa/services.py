@@ -181,7 +181,7 @@ def fetch_home(lang='pt', city='RJ'):
 
 def fetch_matches_by_groups(lang='pt'):
     dt = DateMultiLanguage(lang=lang)
-    list_groups = [G[0] for G in GROUP_CHOICES]
+    list_groups = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
     matches = {}
 
